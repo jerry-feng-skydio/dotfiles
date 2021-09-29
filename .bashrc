@@ -197,5 +197,7 @@ alias fast_android_build="~/.dotfiles/./fast_android_build.sh"
 alias skymux="~/.dotfiles/./skymux.sh"
 alias skyvpn="~/.dotfiles/./skyvpn.sh"
 alias watch_flight_deck="~/.dotfiles/./watch_vehicle_flight_deck.sh"
+alias grep_flight_deck="~/.dotfiles/grep_flight_deck.sh"
+
 
 export EDITOR=vim

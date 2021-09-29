@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Default to 100 lines.
-NUM_LINES=100
-
 POSITIONAL=()
 while [[ $# -gt 0 ]]
 do 
@@ -18,16 +15,11 @@ case $key in
 	shift # past argument
 	shift # past value
 	;;
-	-n|--num_lines)
-	NUM_LINES="$2"
+	-p|--pattern)
+	GREP_PATTERN="$2"
 	shift # past argument
 	shift # past value
 	;;
-    -g|--grep)
-    GREP_PATTERN="$2"
-	shift # past argument
-	shift # past value
-    ;;
 	*)    # Unknown option
 	POSITIONAL+=("$1") # Save it in an array for later
 	shift # past argument
@@ -63,4 +55,4 @@ fi
 
 LOG_FILE=/home/skydio/semi_persistent/process_logs/latest/flight_deck.txt
 
-ssh -t aircam@${HOST} watch -n 0.1 tail -n ${NUM_LINES} ${LOG_FILE}
+ssh -t aircam@${HOST} grep ${GREP_PATTERN} ${LOG_FILE}

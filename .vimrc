@@ -118,7 +118,11 @@ set hlsearch
 set backspace=indent,eol,start
 
 " yank selection to system clipboard (from http://stackoverflow.com/a/11489440/53997)
-" vnoremap <C-c> "*y
+" Note that on linux:
+"  - register "* maps to XA_PRIMARY (e.g. mouse selection buffer clipboard)
+"  - register "+ maps to XA_SECONDARY (e.g. ctrl+c/ctrl+v clipboard)
+nnoremap <leader><y> :normal! "+y<cr>
+nnoremap <leader><p> :normal! "+p<cr>
 
 " Toggle between paste and no-paste modes
 
@@ -132,21 +136,41 @@ map <C-t><right> :tabn<cr>
 nnoremap <c-@> :Files<cr>
 nnoremap <c-p> :GFiles<cr>
 
-nnoremap <F1> :Buffers<cr>
-set pastetoggle=<F2>
-" nnoremap <F3>
-nnoremap <F4> :YcmCompleter GetDoc<cr>
+" Search helpers
+" Search for word under cursor
+nnoremap <expr> <c-?> ':RG '.expand('<cword>').'<cr>'
+" Search for yanked text
+nnoremap <expr> <leader>? ':RG '.expand('<c-r>"').'<cr>'
 
-nnoremap <F5> :YcmCompleter FixIt<cr>
-nnoremap <F6> :YcmCompleter GoToDefinitionElseDeclaration<cr>
-nnoremap <F7> :YcmCompleter GetType<cr>
-" nnoremap <F8>
+" Function Keys ---------------------------------------------------------------
+nnoremap <F1> :YouCompleter GetDoc<cr>
+nnoremap <F2> :YouCompleter GetType<cr>
+nnoremap <F3> :YouCompleter GoTo<cr>
+nnoremap <F4> :YcmCompleter GoToSymbol
 
-" nnoremap <F9>
-nnoremap <F10> :source $MYVIMRC<cr>
+nnoremap <F5> :YcmForceCompileAndDiagnostics<cr>
+nnoremap <F6> :YcmDiags<cr>
+nnoremap <F7> :YcmShowDetailedDiagnostic<cr>
+nnoremap <F8> :YcmCompleter FixIt<cr>
+
+nnoremap <F9> :YcmCompleter RefactorRename
+" nnoremap <F10>
 " F11 is full screen
 " nnoremap <F12>
 
+" <LEADER> + Function keys ---------------------------------------------------
+nnoremap <leader><F1> :Buffers<cr>
+set pastetoggle=<leader><F2>
+nnoremap <leader><F3> :set number!<cr> :SignifyToggle<cr>
+nnoremap <leader><F4> :!./skyrun bin code_format<cr> :silent! bufdo e<cr> 
+nnoremap <leader><F5> :source $MYVIMRC<cr>
+" nnoremap <leader><F6>
+" nnoremap <leader><F7>
+" nnoremap <leader><F8>
+" nnoremap <leader><F9>
+" nnoremap <leader><F10>
+" F11 is full screen
+" nnoremap <leader><F12>
 " ==================================================================================================
 " Syntax highlighting
 " ==================================================================================================
@@ -221,7 +245,7 @@ function! RipgrepFzf(query, fullscreen)
   call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
 endfunction
 command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
-
+command! -nargs=* -bang RGC call RipgrepFzf(<cword>, <bang>0)
 " ==================================================================================================
 " Signify Configuration
 " ==================================================================================================
