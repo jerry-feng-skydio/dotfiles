@@ -143,9 +143,9 @@ nnoremap <expr> <c-?> ':RG '.expand('<cword>').'<cr>'
 nnoremap <expr> <leader>? ':RG '.expand('<c-r>"').'<cr>'
 
 " Function Keys ---------------------------------------------------------------
-nnoremap <F1> :YouCompleter GetDoc<cr>
-nnoremap <F2> :YouCompleter GetType<cr>
-nnoremap <F3> :YouCompleter GoTo<cr>
+nnoremap <F1> :YcmCompleter GetDoc<cr>
+nnoremap <F2> :YcmCompleter GetType<cr>
+nnoremap <F3> :YcmCompleter GoTo<cr>
 nnoremap <F4> :YcmCompleter GoToSymbol
 
 nnoremap <F5> :YcmForceCompileAndDiagnostics<cr>
