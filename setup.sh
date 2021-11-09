@@ -5,8 +5,6 @@
 parent_path="$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )"
 echo "parent path is ${parent_path}"
 cd ~
-exit 1
-
 
 # Delete any existing .bashrc and symlink to ours 
 rm ~/.bashrc
