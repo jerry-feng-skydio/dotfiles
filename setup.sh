@@ -1,16 +1,62 @@
-#!/bin/sh
+#!/bin/bash
 
 # Move to script location
-parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-cd "$parent_path"
+# parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+parent_path="$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )"
 
-# Delete any existing .bashrc and symlink to ours 
-rm ~/.bashrc
-ln -s .bashrc ~/.bashrc
 
-# Ditto for vimrc
-rm ~/.vimrc
-ln -s .vimrc ~/.vimrc
+echo "parent path is ${parent_path}"
+# # Delete any existing .bashrc and symlink to ours 
+# rm ~/.bashrc
+# ln -s "${parent_path}/.bashrc" "~/.bashrc"
+# 
+# # Ditto for vimrc
+# rm ~/.vimrc
+# ln -s "${parent_path}/.vimrc" "~/.vimrc"
+
+cd ~
+
+####################################################################################################
+# 1Password stuff
+####################################################################################################
+if ! command -v jq &> /dev/null; then
+    echo "Installing JQ"
+    sudo apt-get install jq
+fi
+
+# How to get their latest CLI?
+if ! command -v op &> /dev/null; then
+    echo "Installing 1password"
+    cli_vers="v1.12.3"
+    cli_plat="amd64"
+    cli_path="op_linux_${cli_plat}_${cli_vers}" 
+    cli_archive="${cli_path}.zip"
+    cli_url="https://cache.agilebits.com/dist/1P/op/pkg/${cli_vers}/${cli_archive}"
+    
+    rm $cli_archive
+    rm -rf $cli_path
+    mkdir ${cli_path}
+
+    echo "Downloading: ${cli_url}" 
+    curl "$cli_url" -o "$cli_archive"
+    file-roller --extract-to=${cli_path} ${cli_archive}
+    # 7z e $cli_archive
+    # unzip "$cli_archive" "$cli_path"
+    # unzip "$cli_archive"
+
+    # cd "$cli_path"
+    # gpg --receive-keys 3FEF9748469ADBE15DA7CA80AC2D62742012EA22
+    # gpg --verify op.sig op
+
+    sudo mv "${cli_path}/op" "/usr/local/bin/"
+
+    # rm op.sig
+fi
+
+source ~/.bashrc
+
+# Force first time signin
+op signin skydio.1password.com jerry.feng@skydio.com
 
 ####################################################################################################
 # Re-install vim with python 3.8:
@@ -21,7 +67,7 @@ sudo apt remove vim vim-runtime gvim
 # Clone vim and build from source
 # Note that we specify that the python3 command must be 'python3.8`
 cd ~
-git clone https://github.com/vim/vim.git
+git clone https://github.com/vim/vim.git 
 cd vim
 ./configure --with-features=huge \
             --enable-multibyte \
