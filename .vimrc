@@ -142,6 +142,7 @@ nnoremap <expr> <c-?> ':RG '.expand('<cword>').'<cr>'
 " Search for yanked text
 nnoremap <expr> <leader>? ':RG '.expand('<c-r>"').'<cr>'
 
+nnoremap <leader><bar> :vsp<cr>
 " Function Keys ---------------------------------------------------------------
 nnoremap <F1> :YcmCompleter GetDoc<cr>
 nnoremap <F2> :YcmCompleter GetType<cr>
