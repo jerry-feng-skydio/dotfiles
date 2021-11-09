@@ -199,5 +199,6 @@ alias skyvpn="~/.dotfiles/./skyvpn.sh"
 alias watch_flight_deck="~/.dotfiles/./watch_vehicle_flight_deck.sh"
 alias grep_flight_deck="~/.dotfiles/grep_flight_deck.sh"
 alias lazy_ota="~/.dotfiles/lazy_ota.sh"
+alias jerry_first_time_setup="~/.dotfiles/setup.sh"
 
 export EDITOR=vim

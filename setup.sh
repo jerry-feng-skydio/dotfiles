@@ -3,18 +3,18 @@
 # Move to script location
 # parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 parent_path="$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )"
-
-
 echo "parent path is ${parent_path}"
-# # Delete any existing .bashrc and symlink to ours 
-# rm ~/.bashrc
-# ln -s "${parent_path}/.bashrc" "~/.bashrc"
-# 
-# # Ditto for vimrc
-# rm ~/.vimrc
-# ln -s "${parent_path}/.vimrc" "~/.vimrc"
-
 cd ~
+exit 1
+
+
+# Delete any existing .bashrc and symlink to ours 
+rm ~/.bashrc
+ln -s "${parent_path}/.bashrc" "~/.bashrc"
+
+# Ditto for vimrc
+rm ~/.vimrc
+ln -s "${parent_path}/.vimrc" "~/.vimrc"
 
 ####################################################################################################
 # 1Password stuff
@@ -40,17 +40,8 @@ if ! command -v op &> /dev/null; then
     echo "Downloading: ${cli_url}" 
     curl "$cli_url" -o "$cli_archive"
     file-roller --extract-to=${cli_path} ${cli_archive}
-    # 7z e $cli_archive
-    # unzip "$cli_archive" "$cli_path"
-    # unzip "$cli_archive"
-
-    # cd "$cli_path"
-    # gpg --receive-keys 3FEF9748469ADBE15DA7CA80AC2D62742012EA22
-    # gpg --verify op.sig op
 
     sudo mv "${cli_path}/op" "/usr/local/bin/"
-
-    # rm op.sig
 fi
 
 source ~/.bashrc
@@ -108,8 +99,10 @@ vim -c 'PluginInstall' -c 'qa!'
 ####################################################################################################
 # Finish installing YCM 
 ####################################################################################################
-libclang_src_path="${parent_path}/resources/libclang-10.0.0-x86_64-unknown-linux-gnu.tar.bz2"
-libclang_dst_path="~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/../clang_archives/libclang-10.0.0-x86_64-unknown-linux-gnu.tar.bz2"
+libclang_archive_name="libclang-10.0.0-x86_64-unknown-linux-gnu.tar.bz2"
+libclang_target_dir="~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/../clang_archives/"
+libclang_src_path="${parent_path}/resources/${libclang_archive_name}"
+libclang_dst_path="$libclang_target_dir$libclang_archive_name"
 
 cd ~/.vim/bundle/YouCompleteMe
 
