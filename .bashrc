@@ -163,6 +163,14 @@ DISABLE_AUTO_TITLE=true
 # Ctags generation shortcut
 alias ctaggen='ctags -R --exclude=.git --exclude="build/build/*" --exclude="build/clones/*" --exclude="build/deploy/*" --exclude="build/doc/*" --exclude="build/images/*" --exclude="build/install/*" --exclude="build/stamps/*" --exclude="build/web/*" --exclude="build/*.json" --exclude=clion-aircam-make-relwithdebinfo --exclude="third_party*" --exclude="shared/third_party*" --exclude=graveyard --exclude="tools/lcmtype_auto_translation/*"' 
 
+# Powerline configuration
+if [ -f /usr/share/powerline/bindings/bash/powerline.sh ]; then
+  powerline-daemon -q
+  POWERLINE_BASH_CONTINUATION=1
+  POWERLINE_BASH_SELECT=1
+  source /usr/share/powerline/bindings/bash/powerline.sh
+fi
+
 # Quick TMUX editing
 edit_tmux() {
     vim ~/.tmux.conf
