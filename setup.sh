@@ -48,6 +48,18 @@ source ~/.bashrc
 op signin skydio.1password.com jerry.feng@skydio.com
 
 ####################################################################################################
+# Set up more env stuff
+####################################################################################################
+# Let's do all of this work in downloads
+cd ~/Downloads
+
+# Install rg
+curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
+sudo dpkg -i ripgrep_13.0.0_amd64.deb
+
+# Install FZF?
+
+####################################################################################################
 # Re-install vim with python 3.8:
 ####################################################################################################
 # Uninstall pre-existing versions of vim:

@@ -210,3 +210,5 @@ alias lazy_ota="~/.dotfiles/lazy_ota.sh"
 alias jerry_first_time_setup="~/.dotfiles/setup.sh"
 
 export EDITOR=vim
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
