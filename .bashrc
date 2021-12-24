@@ -126,11 +126,14 @@ export AIRCAM_ROOT=/home/skydio/aircam
 export PATH=${AIRCAM_ROOT}/build/host_third_party/bin:${PATH}
 export PATH=${AIRCAM_ROOT}/build/host_aircam/bin:${PATH}
 
+export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="eth0"
+
 eval "$(register-python-argcomplete launch_pipeline)"
 eval "$(register-python-argcomplete skyrun)"
 # END ANSIBLE MANAGED BLOCK
 
 export SKYREV_REMOTE_USER="jerry.feng"
+export SKYDIO_GERRIT_USERNAME="jerry.feng"
 
 # Alias for Yubikey pin prompt
 alias yubact="ssh-add -D && ssh-add -e /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so; ssh-add -s /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so"

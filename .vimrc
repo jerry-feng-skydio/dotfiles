@@ -245,8 +245,99 @@ function! RipgrepFzf(query, fullscreen)
   let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
   call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
 endfunction
-command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
-command! -nargs=* -bang RGC call RipgrepFzf(<cword>, <bang>0)
+
+function! SkyRipgrepFzf( ... )
+  " Passes in some filtering options for rg, note that all flags must come
+  " before the query.
+  " Flags:
+  "   '
+  " Set detault values
+  let filetypes_arg = ''
+  let globing_arg = ''
+  let query=''
+  let query_started=0
+
+  " Iterate through all arguments. All flags must come before the query.
+  for arg in a:000
+    echo 'iterating on arg &arg' 
+    " All flags must be non-zero length and start with '-'
+    if (!query_started && len(arg) > 0 && arg[0] == '-')
+      let maybe_parsed_arg = split(arg, '=')
+      if len(maybe_parsed_arg) == 2
+        let flag = maybe_parsed_arg[0]
+        let val = maybe_parsed_arg[1]
+        if (flag == '-n')
+          " Everything past this flag is a query
+          let query_started = 1
+        elseif (flag == '-f') 
+          echo "Got filetypes flag with val &val"
+          let globing_arg = printf('%s -g "*.{%s}"', globing_arg, val) 
+        elseif (flag == '-g')
+          echo "Got globing flag with val &val"
+          let globing_arg = printf('%s -g "%s"', globing_arg, val) 
+          echo "Globing arg is now &globing_arg"
+        else
+          echoe "Unrecognized flag &flag, assuming query has started"
+          let query_started = 1
+        endif
+      else
+        echo 'arg is not a flag, assuming rest of arguments are part of query'
+        let query_started = 1
+      endif " parsed arg length
+    else " arg is either 0 length or does not start with '-'
+      echo 'arg is not a flag, assuming rest of arguments are part of query'
+      let query_started = 1
+    endif
+
+    " if query has started, append to query
+    if (query_started)
+      if (len(query) == 0)
+        let query = arg 
+      else
+        let query = printf('%s %s', query, arg) 
+      endif
+    endif
+  endfor
+
+  " Set default filetypes list if necessary
+  if (len(filetypes_arg) == 0)
+    echo "Defaulting filetypes"
+    let filetypes = printf('-g "*.{%s}"', 'djinni,proto,mm,m,lcm,cc,h,swift,py,java,kt,cmake')
+  endif
+
+  " Set default negative globing
+  if (len(globing_arg) == 0)
+    echo "Defaulting globing"
+      let globing_arg = '
+              \ -g "!build/*"
+              \ -g "!third_party_modules/*"
+              \ -g "!third_party/*"
+              \ -g "!bazel-out/*"
+              \ -g "!*/node_modules/*"
+              \'
+  endif
+
+  echo "filetypes arg is &filetypes_arg"
+  echo "globing arg is &globing_arg"
+  echo "query arg is &query"
+
+  let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case
+              \ %s
+              \ %s
+              \ -- %s || true
+              \'
+
+  let initial_command = printf(command_fmt, filetypes_arg, globing_arg, shellescape(query))
+  let reload_command = printf(command_fmt, filetypes_arg, globing_arg, '{q}')
+  let spec = {'options': ['--phony', '--query', query, '--bind', 'change:reload:'.reload_command]}
+  call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), 0)
+endfunction
+
+" command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
+" command! -nargs=* -bang RGC call RipgrepFzf(<cword>, <bang>0)
+" command! -nargs=* -bang RGCC call RipgrepFzfCC(<q-args>, <bang>0)
+command! -nargs=* -bang RG call SkyRipgrepFzf(<f-args>)
+
 " ==================================================================================================
 " Signify Configuration
 " ==================================================================================================

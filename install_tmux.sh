@@ -17,7 +17,7 @@ git clone https://github.com/tmux/tmux.git /tmp/tmux
 
 cd /tmp/tmux
 
-git checkout master
+git checkout 3.2a
 
 sh autogen.sh
 

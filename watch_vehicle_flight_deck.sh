@@ -18,6 +18,11 @@ case $key in
 	shift # past argument
 	shift # past value
 	;;
+    -i|--identity)
+    IDENTITY="$2"
+	shift # past argument
+	shift # past value
+	;;
 	-n|--num_lines)
 	NUM_LINES="$2"
 	shift # past argument
@@ -61,6 +66,12 @@ then
     HOST="192.168.11.1"
 fi
 
+if [ ! -z "$IDENTITY" ]
+then
+    echo "Using identity file $IDENTITY"
+    IDENTITY_ARG="-i $IDENTITY"
+fi
+
 LOG_FILE=/home/skydio/semi_persistent/process_logs/latest/flight_deck.txt
 
-ssh -t aircam@${HOST} watch -n 0.1 tail -n ${NUM_LINES} ${LOG_FILE}
+ssh -t aircam@${HOST} ${IDENTITY_ARG} watch -n 0.1 tail -n ${NUM_LINES} ${LOG_FILE}
