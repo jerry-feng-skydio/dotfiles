@@ -259,7 +259,7 @@ function! SkyRipgrepFzf( ... )
   " Additionally, arguments that can 'be a list' are comma delimited.
   "
   " An example using the RG command I've set up below:
-  "     :RG -f cc,lcm -d mobile/shared/mvvm/,infrastructure/ar_video_shaders/ prism_t
+  "     :RG -f cc,lcm -d mobile/shared/mvvm,infrastructure/ar_video_shaders prism_t
   "
   " Options:
   "  --) Everything after this flag is considered part of the query. Useful if part of your query
@@ -269,10 +269,10 @@ function! SkyRipgrepFzf( ... )
   "      Can be specified multiple times, for instance ':RG -f cc -f h -f lcm <QUERY>'
   "  -Nf) Specifically ignore filetypes listed in the next argument. Works like '-f'
   "  -d) Specifically search within the directories listed in the next argument.
-  "      For example, ":RG -d mobile/shared/appcore/,mobile/shared/mvvm/ will only look within
+  "      For example, ":RG -d mobile/shared/appcore,mobile/shared/mvvm will only look within
   "      those relative directories.
-  "      Can also be specified multiple times. Note that this will nicely append a '/' to the end of
-  "      any directories missing it.
+  "      Can also be specified multiple times. Note that you need to pass in a directory without the
+  "      trailing slash... Maybe I should check for it and remove it. TBD
   "  -Nf) Specifically ignore directories listed in the next argument. Works like '-d'
   "  -p) Merge with preset. TODO, but the idea would be to set up constant 'filetype' and
   "      'directory' includes/ignores that merge with the provided preset name. For example, if we
@@ -283,7 +283,7 @@ function! SkyRipgrepFzf( ... )
   "  - Would love to have tab-completion for directory searching
   "
   "  - We don't do any smart 'understanding' of filters. Putting a directory/filetype in both ignored
-  "    and included has undefined behavior
+  "    and included will be excluded, regardless of ordering
   "
   "  - Setting a preset value right now will remove default search filtering.
   "
@@ -347,8 +347,8 @@ function! SkyRipgrepFzf( ... )
                 let split_dirs = split(option, ',') 
                 for dir in split_dirs
                     echom "Adding dir " . dir . " to desired directories list"
-                    if (dir[len(dir) - 1] != '/')
-                        let dir = dir . '/'
+                    if (dir[len(dir) - 1] == '/')
+                        let dir = dir[0:len(dir) - 1]
                     endif
                     let directories[dir] = 1
                 endfor
@@ -362,8 +362,8 @@ function! SkyRipgrepFzf( ... )
                 let split_dirs = split(option, ',') 
                 for dir in split_dirs
                     echom "Adding dir " . dir . " to ignored directories list"
-                    if (dir[len(dir) - 1] != '/')
-                        let dir = dir . '/'
+                    if (dir[len(dir) - 1] == '/')
+                        let dir = dir[0:len(dir) - 1]
                     endif
                     let directories[dir] = 0
                 endfor
@@ -411,11 +411,11 @@ function! SkyRipgrepFzf( ... )
     \ 'cmake',
     \ ]
   let default_ignored_dirs = [
-    \ 'build/*',
-    \ 'third_party_modules/*',
-    \ 'third_party/*',
-    \ 'bazel-out/*',
-    \ '*/node_modules/*',
+    \ 'build',
+    \ 'third_party_modules',
+    \ 'third_party',
+    \ 'bazel-out',
+    \ '*/node_modules',
     \ ]
 
    if (preset == '')
@@ -462,10 +462,10 @@ function! SkyRipgrepFzf( ... )
         if (len(desired_dirs) == 0)
           let desired_dirs = key 
         else 
-          let desired_dirs = desired_dirs . ',' . key 
+          let desired_dirs = desired_dirs . ' ' . key 
         endif
     else 
-        let generic_globing = generic_globing . printf('-g "!%s" ', key) 
+        let generic_globing = generic_globing . printf('-g "!%s/**" ', key) 
     endif
   endfor
 
@@ -477,20 +477,22 @@ function! SkyRipgrepFzf( ... )
 
   if (len(desired_types) > 0)
     " Desired patterns should come first, to allow exclusionary patterns to take precedence
-    let generic_globing = printf('-g "{%s}*.{%s}" ', desired_dirs, desired_types) . generic_globing 
+    " let generic_globing = printf('-g "{%s}/**.{%s}" ', desired_dirs, desired_types) . generic_globing 
+    let generic_globing = printf('-g "*.{%s}" ', desired_types) . generic_globing 
+  else
+    let generic_globing = printf('-g "{%s}/**" ', desired_dirs) . generic_globing 
   endif
 
   if (len(ignored_types) > 0)
     let generic_globing = generic_globing . printf('-g "!*.{%s}" ', ignored_types)
   endif
-  
+
   let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case
-              \ %s
-              \ -- %s || true
+              \ %s -- %s  %s || true
               \'
 
-  let initial_command = printf(command_fmt, generic_globing, shellescape(query))
-  let reload_command = printf(command_fmt, generic_globing, '{q}')
+  let initial_command = printf(command_fmt, generic_globing, shellescape(query), desired_dirs)
+  let reload_command = printf(command_fmt, generic_globing, '{q}', desired_dirs)
 
   echom "Got initial command " . initial_command
   echom "Got reload command " . reload_command
