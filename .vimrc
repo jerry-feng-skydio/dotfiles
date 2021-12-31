@@ -78,16 +78,9 @@ filetype plugin indent on    " required
 " ==================================================================================================
 " Imports
 " ==================================================================================================
-" function! SourceLocal(relativePath)
-  " let root = expand('%:p:h')
-  " let fullPath = root . '/'. a:relativePath
-  " exec 'source ' . fullPath
-" endfunction
-
-" call SourceLocal('skyripgrepfzf.vim')
 let g:vim_config_root = '~/.dotfiles/'
 let g:config_file_list = [
-    \ 'skyripgrepfzf.vim',
+    \ 'skyrg.vim',
     \ ]
 
 for f in g:config_file_list
