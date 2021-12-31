@@ -1,3 +1,4 @@
+" initially written by jerry.feng, modified by... you?
 " Dec 30, 2021 -- version 1.0
 
 " ==================================================================================================
@@ -68,8 +69,11 @@ let g:TypeKey='type'
 let g:DirKey='dir'
 
 " Global state =====================================================================================
-let g:SkyFilter.default = SkyFilter.new("default")
+" all filters created are registered in this dict
 let g:SkyFilter.presets = {}
+" Key for the default base filter used in the search. If no such key exists, an empty filter will
+" be constructed for use
+let g:SkyFilter.default = 'DEFAULT_FILTER' 
 
 " Init =============================================================================================
 function g:SkyFilter.new(name)
@@ -82,6 +86,12 @@ function g:SkyFilter.new(name)
       " - if an entry has a value of 0, it is specifically ignored in the globbing options
     let l:new_preset[g:DirKey] = {}
     let l:new_preset[g:TypeKey] = {}
+
+    " Register filter into global presets 
+    if (has_key(g:SkyFilter.presets, a:name))
+      call g:Report.d("New filter supercedes pre-existing filter with same name!")
+    endif
+    let g:SkyFilter.presets[a:name] = l:new_preset
 
     return l:new_preset 
 endfunction
@@ -179,24 +189,28 @@ endfunction
 function g:SkyFilter.include_filetypes(filetypes)
     let l:allow_overwrites = 1
     call self._set_filetypes(a:filetypes, 1, l:allow_overwrites)
+    let g:SkyFilter.presets[self.name] = self
     return self
 endfunction
 
 function g:SkyFilter.ignore_filetypes(filetypes)
     let l:allow_overwrites = 1
     call self._set_filetypes(a:filetypes, 0, l:allow_overwrites)
+    let g:SkyFilter.presets[self.name] = self
     return self
 endfunction
 
 function g:SkyFilter.include_dirs(dirs)
     let l:allow_overwrites = 1
     call self._set_dirs(a:dirs, 1, l:allow_overwrites)
+    let g:SkyFilter.presets[self.name] = self
     return self
 endfunction
 
 function g:SkyFilter.ignore_dirs(dirs)
     let l:allow_overwrites = 1
     call self._set_dirs(a:dirs, 0, l:allow_overwrites)
+    let g:SkyFilter.presets[self.name] = self
     return self
 endfunction
 
@@ -273,9 +287,9 @@ function g:SkyFilter.get_search_directories()
   return l:output
 endfunction
 
-function! SkyRipgrepFzf( ... )
+function! SkyRG( ... )
   " Usage:
-  "   SkyRipgrepFzf([-f|-Nf file_extensions] [-d|Nd directories] [-p preset_name] [-n] query)
+  "   SkyRG([-f|-Nf file_extensions] [-d|Nd directories] [-p preset_name] [-n] query)
   "
   " Passes in some filtering options for rg, note that all options must come before the query.
   " Anything that is not parsed as an option (and potential following argument).
@@ -341,6 +355,7 @@ function! SkyRipgrepFzf( ... )
   let query=''
   let query_started=0
 
+  " Parse arguments, then build query.
   let num_args = len(a:000)
   let curr_idx = 0
   while curr_idx < num_args
@@ -395,13 +410,21 @@ function! SkyRipgrepFzf( ... )
     let curr_idx = curr_idx + 1
   endwhile
   
-  let base_preset = g:SkyFilter.default
+  " Get, then rebase on preset filter. Fall back to default if necessary
+  let base_preset_name = g:SkyFilter.default
   if (preset_name != '' && has_key(g:SkyFilter.presets, preset_name))
-    let base_preset = g:SkyFilter.presets[preset_name]
+    let base_preset_name = preset_name
+  else
+    if (!has_key(g:SkyFilter.presets, g:SkyFilter.default))
+      call g:SkyFilter.new(g:SkyFilter.default)
+    endif
+    let base_preset_name = g:SkyFilter.default
   endif
 
+  let base_preset = g:SkyFilter.presets[base_preset_name]
   call rg_filter.apply_base(base_preset)
 
+  " Construct ripgrep command
   let l:globbing_flags = rg_filter.get_globbing_flags()
   let l:search_dirs = rg_filter.get_search_directories()
   let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case
@@ -411,8 +434,8 @@ function! SkyRipgrepFzf( ... )
   let initial_command = printf(command_fmt, l:globbing_flags, shellescape(query), l:search_dirs)
   let reload_command = printf(command_fmt, l:globbing_flags, '{q}', l:search_dirs)
 
-  call g:Report.s("Got initial command " . initial_command)
-  call g:Report.s("Got reload command " . reload_command)
+  call g:Report.d("Got initial command " . initial_command)
+  call g:Report.d("Got reload command " . reload_command)
 
   let spec = {'options': ['--phony', '--query', query, '--bind', 'change:reload:'.reload_command]}
   call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), 0)

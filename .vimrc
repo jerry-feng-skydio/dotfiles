@@ -267,69 +267,45 @@ let s:ac_ignore_dirs = [
     \ '**/node_modules',
     \ ]
 
-let g:SkyFilter.presets["empty"] = g:SkyFilter.new("empty")
-
 let s:cwd = getcwd()
 if (stridx(s:cwd, 'aircam') != -1)
     echom "Setting RG filter to default to aircam!"
 
-    let g:SkyFilter.presets["aircam"] = g:SkyFilter.new("aircam")
+    call g:SkyFilter.new("aircam")
           \ .include_filetypes(s:ac_types)
           \ .include_dirs(s:ac_search_dirs)
           \ .ignore_filetypes(s:ac_ignore_types)
           \ .ignore_dirs(s:ac_ignore_dirs)
 
-    let g:SkyFilter.presets["ios"] = g:SkyFilter.new("ios")
+    call g:SkyFilter.new("ios")
           \ .include_filetypes(['djinni', 'mm', 'm', 'swift'])
           \ .include_dirs(['mobile'])
           \ .ignore_filetypes(s:ac_ignore_types)
           \ .ignore_dirs(s:ac_ignore_dirs)
 
-    let g:SkyFilter.presets["android"] = g:SkyFilter.new("android")
+    call g:SkyFilter.new("android")
           \ .include_filetypes(['djinni', 'java', 'kt'])
           \ .include_dirs(['mobile'])
           \ .ignore_filetypes(s:ac_ignore_types)
           \ .ignore_dirs(s:ac_ignore_dirs)
 
-    let g:SkyFilter.presets["mcore"] = g:SkyFilter.new("mcore")
+    call g:SkyFilter.new("mcore")
           \ .include_filetypes(['djinni', 'cc', 'h'])
           \ .include_dirs(['mobile/shared'])
           \ .ignore_filetypes(s:ac_ignore_types)
           \ .ignore_dirs(s:ac_ignore_dirs)
 
-    let g:SkyFilter.presets["lcm"] = g:SkyFilter.new("lcm")
+    call g:SkyFilter.new("lcm")
           \ .include_filetypes(['lcm', 'proto'])
           \ .include_dirs(s:ac_search_dirs)
           \ .ignore_filetypes(s:ac_ignore_types)
           \ .ignore_dirs(s:ac_ignore_dirs)
 
-    let g:SkyFilter.default = g:SkyFilter.presets['aircam']
-else
-    echom "Setting RG filter to default to empty!"
-    let g:SkyFilter.default = g:SkyFilter.presets['empty']
+    let g:SkyFilter.default = 'aircam'
 endif
 
-
-" VSCode like search
-function! RipgrepFzf(query, fullscreen)
-  let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case
-              \ -g "*.{djinni,proto,mm,m,lcm,cc,h,swift,py,java,kt,cmake}"
-              \ -g "!build/*"
-              \ -g "!third_party_modules/*"
-              \ -g "!third_party/*"
-              \ -g "!bazel-out/*"
-              \ -g "!*/node_modules/*"
-              \ -- %s || true
-              \'
-
-  let initial_command = printf(command_fmt, shellescape(a:query))
-  let reload_command = printf(command_fmt, '{q}')
-  let spec = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
-  call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
-endfunction
-
-command! -nargs=* -bang RG call SkyRipgrepFzf(<f-args>)
-command! -nargs=* -bang RGN call SkyRipgrepFzf('--', <f-args>)
+command! -nargs=* -bang RG call SkyRG(<f-args>)
+command! -nargs=* -bang RGN call SkyRG('--', <f-args>)
 
 " ==================================================================================================
 " Signify Configuration
