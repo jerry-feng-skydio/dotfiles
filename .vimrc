@@ -1,6 +1,8 @@
+" Clear messages buffer
+let g:messages=[]
+
 set nocompatible              " be iMproved, required
 filetype off                  " required
-
 " ==================================================================================================
 " Env management
 " ==================================================================================================
@@ -218,7 +220,7 @@ autocmd BufNewFile,BufFilePre,BufRead *.kt set filetype=kotlin
 autocmd BufNewFile,BufFilePre,BufRead *.swift set filetype=swift
 
 
-autocmd BufNewFile,BufFilePre,BufRead,FileType *.vimrc setlocal shiftwidth=2 softtabstop=2 tabstop=2 textwidth=100
+autocmd BufNewFile,BufFilePre,BufRead,FileType *.vimrc,*.vim setlocal shiftwidth=2 softtabstop=2 tabstop=2 textwidth=100
 
 " ==================================================================================================
 " Language specific editor behavior
@@ -250,6 +252,64 @@ set mouse=a
 " ==================================================================================================
 " FZF Configuration
 " ==================================================================================================
+" Default configurations
+let s:ac_types = ['py', 'cc', 'h', 'lcm', 'proto', 'djinni', 'mm', 'm', 'swift', 'java', 'kt', 'cmake']
+let s:ac_ignore_types = []
+
+" NOTE: All directory paths are relative.
+" Also, if search dirs is empty, rg will search where vim was executed.
+let s:ac_search_dirs = []
+let s:ac_ignore_dirs = [
+    \ 'build',
+    \ 'third_party_modules',
+    \ 'third_party',
+    \ 'bazel-out',
+    \ '**/node_modules',
+    \ ]
+
+let g:SkyFilter.presets["empty"] = g:SkyFilter.new("empty")
+
+let s:cwd = getcwd()
+if (stridx(s:cwd, 'aircam') != -1)
+    echom "Setting RG filter to default to aircam!"
+
+    let g:SkyFilter.presets["aircam"] = g:SkyFilter.new("aircam")
+          \ .include_filetypes(s:ac_types)
+          \ .include_dirs(s:ac_search_dirs)
+          \ .ignore_filetypes(s:ac_ignore_types)
+          \ .ignore_dirs(s:ac_ignore_dirs)
+
+    let g:SkyFilter.presets["ios"] = g:SkyFilter.new("ios")
+          \ .include_filetypes(['djinni', 'mm', 'm', 'swift'])
+          \ .include_dirs(['mobile'])
+          \ .ignore_filetypes(s:ac_ignore_types)
+          \ .ignore_dirs(s:ac_ignore_dirs)
+
+    let g:SkyFilter.presets["android"] = g:SkyFilter.new("android")
+          \ .include_filetypes(['djinni', 'java', 'kt'])
+          \ .include_dirs(['mobile'])
+          \ .ignore_filetypes(s:ac_ignore_types)
+          \ .ignore_dirs(s:ac_ignore_dirs)
+
+    let g:SkyFilter.presets["mcore"] = g:SkyFilter.new("mcore")
+          \ .include_filetypes(['djinni', 'cc', 'h'])
+          \ .include_dirs(['mobile/shared'])
+          \ .ignore_filetypes(s:ac_ignore_types)
+          \ .ignore_dirs(s:ac_ignore_dirs)
+
+    let g:SkyFilter.presets["lcm"] = g:SkyFilter.new("lcm")
+          \ .include_filetypes(['lcm', 'proto'])
+          \ .include_dirs(s:ac_search_dirs)
+          \ .ignore_filetypes(s:ac_ignore_types)
+          \ .ignore_dirs(s:ac_ignore_dirs)
+
+    let g:SkyFilter.default = g:SkyFilter.presets['aircam']
+else
+    echom "Setting RG filter to default to empty!"
+    let g:SkyFilter.default = g:SkyFilter.presets['empty']
+endif
+
+
 " VSCode like search
 function! RipgrepFzf(query, fullscreen)
   let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case
