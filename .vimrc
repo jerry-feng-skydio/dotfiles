@@ -3,6 +3,7 @@ let g:messages=[]
 
 set nocompatible              " be iMproved, required
 filetype off                  " required
+
 " ==================================================================================================
 " Env management
 " ==================================================================================================
@@ -60,6 +61,8 @@ Plugin 'udalov/kotlin-vim'
 " swift syntax highlighting
 Plugin 'keith/swift.vim'
 
+Plugin 'jfeng94/skyrg'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -78,14 +81,14 @@ filetype plugin indent on    " required
 " ==================================================================================================
 " Imports
 " ==================================================================================================
-let g:vim_config_root = '~/.dotfiles/'
-let g:config_file_list = [
-    \ 'skyrg.vim',
-    \ ]
+" let g:vim_config_root = '~/.dotfiles'
+" let g:config_file_list = [
+    " \ 'skyrg.vim',
+    " \ ]
 
-for f in g:config_file_list
-    execute 'source ' . g:vim_config_root . '/' . f
-endfor
+" for f in g:config_file_list
+    " execute 'source ' . g:vim_config_root . '/' . f
+" endfor
 
 " ==================================================================================================
 " General text editor behavior
@@ -96,7 +99,7 @@ set noswapfile
 " Have Vim jump to the last position when reopening a file
 if has("autocmd")
   au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
-      \| exe "normal! g'\"" | endif
+      \| exe "normal! g'\"zz" | endif
       endif
 
 " Have Vim maintain undo history between sessions
@@ -135,8 +138,8 @@ set backspace=indent,eol,start
 " Note that on linux:
 "  - register "* maps to XA_PRIMARY (e.g. mouse selection buffer clipboard)
 "  - register "+ maps to XA_SECONDARY (e.g. ctrl+c/ctrl+v clipboard)
-nnoremap <leader><y> :normal! "+y<cr>
-nnoremap <leader><p> :normal! "+p<cr>
+nnoremap <leader>y "+y
+nnoremap <leader>p "+p
 
 " Toggle between paste and no-paste modes
 
@@ -152,9 +155,9 @@ nnoremap <c-p> :GFiles<cr>
 
 " Search helpers
 " Search for word under cursor
-nnoremap <expr> <c-?> ':RG '.expand('<cword>').'<cr>'
+nnoremap <expr> <c-?> ':RG '.expand('<cword>')
 " Search for yanked text
-nnoremap <expr> <leader>? ':RG '.expand('<c-r>"').'<cr>'
+nnoremap <expr> <leader>? ':RG '.expand('<c-r>"')
 
 nnoremap <leader><bar> :vsp<cr>
 " Function Keys ---------------------------------------------------------------
@@ -178,7 +181,7 @@ nnoremap <leader><F1> :Buffers<cr>
 set pastetoggle=<leader><F2>
 nnoremap <leader><F3> :set number!<cr> :SignifyToggle<cr>
 nnoremap <leader><F4> :!./skyrun bin code_format<cr> :silent! bufdo e<cr> 
-nnoremap <leader><F5> :source $MYVIMRC<cr>
+nnoremap <leader><F5> :source $MYVIMRC<cr> :e!<cr>
 " nnoremap <leader><F6>
 " nnoremap <leader><F7>
 " nnoremap <leader><F8>
@@ -186,49 +189,69 @@ nnoremap <leader><F5> :source $MYVIMRC<cr>
 " nnoremap <leader><F10>
 " F11 is full screen
 " nnoremap <leader><F12>
+
+
+
+"call code_format on file write
+function! SkydioCodeFormat()
+  let s:cwd = getcwd()
+  if (stridx(s:cwd, 'aircam') != -1)
+    silent exec '!./skyrun bin code_format %'
+    " Calling e makes file reload happen faster (tested on mac, YMMV -- might be omitable)
+    exec 'e'
+    " if using vim, sometimes the screen buffer gets busted, this redraws the screen
+    exec 'redraw!'
+  endif
+endfunction
+
+" call skydio formatter on filewrite
+" TODO: Do not call if not aircam directory
+augroup setup_code_formatter
+  autocmd!
+  autocmd BufWritePost * call SkydioCodeFormat()
+augroup end
 " ==================================================================================================
 " Syntax highlighting
 " ==================================================================================================
 syntax enable
 
-" set markdown filetypes
-autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
-
-" set cpp filetypes
-autocmd BufNewFile,BufFilePre,BufRead *.cc set filetype=cpp
-
-" set java filetypes
-autocmd BufNewFile,BufFilePre,BufRead *.java set filetype=java
-
-" set python filetypes
-autocmd BufNewFile,BufFilePre,BufRead *.py set filetype=python
-
-" set djinni filetypes
-autocmd BufNewFile,BufFilePre,BufRead *.djinni set filetype=djinni
-
-" set kotlin filetypes
-autocmd BufNewFile,BufFilePre,BufRead *.kt set filetype=kotlin
-
-" set swift filetypes
-autocmd BufNewFile,BufFilePre,BufRead *.swift set filetype=swift
-
-
-autocmd BufNewFile,BufFilePre,BufRead,FileType *.vimrc,*.vim setlocal shiftwidth=2 softtabstop=2 tabstop=2 textwidth=100
+augroup setup_filetypes
+  autocmd!
+  autocmd BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
+  autocmd BufNewFile,BufFilePre,BufRead *.cc set filetype=cpp
+  autocmd BufNewFile,BufFilePre,BufRead *.java set filetype=java
+  autocmd BufNewFile,BufFilePre,BufRead *.py set filetype=python
+  autocmd BufNewFile,BufFilePre,BufRead *.djinni set filetype=djinni
+  autocmd BufNewFile,BufFilePre,BufRead *.kt set filetype=kotlin
+  autocmd BufNewFile,BufFilePre,BufRead *.swift set filetype=swift
+  autocmd BufNewFile,BufFilePre,BufRead *.vimrc,*.vim set filetype=vim
+augroup end
 
 " ==================================================================================================
 " Language specific editor behavior
 " ==================================================================================================
-" set tab size to 2 for .h, .cc files
-autocmd FileType cpp setlocal shiftwidth=2 softtabstop=2 tabstop=2
-autocmd FileType tex setlocal shiftwidth=2 softtabstop=2 tabstop=2
-autocmd FileType java setlocal shiftwidth=2 softtabstop=2 tabstop=2
-autocmd FileType python setlocal shiftwidth=4 softtabstop=4 tabstop=4
+function! s:SetupEditor(tabwidth, textwidth)
+    execute "setlocal shiftwidth=".a:tabwidth
+    execute "setlocal softtabstop=".a:tabwidth
+    execute "setlocal tabstop=".a:tabwidth
+    execute "setlocal textwidth=".a:textwidth
+    execute "setlocal colorcolumn=".(a:textwidth+1)
+endfunction
 
-" set wrap size for just programming files
-autocmd FileType c,cpp,java,python set textwidth=100 " set hard wrap width
+augroup setup_filetype_editors
+  autocmd!
+  autocmd FileType cpp call s:SetupEditor(2, 100)
+  autocmd FileType djinni call s:SetupEditor(4, 100)
+  autocmd FileType tex call s:SetupEditor(2, 120)
+  autocmd FileType java call s:SetupEditor(2, 100)
+  autocmd FileType python call s:SetupEditor(4, 100)
+  autocmd FileType vim call s:SetupEditor(2, 100)
+  autocmd FileType c,cc,cpp,objc,*.mm call SetupForCLang()
 
-autocmd FileType c,cc,cpp,objc,*.mm call SetupForCLang()
-
+  " Sets up vim help docs to vsplit right
+  autocmd FileType help wincmd L
+augroup end
+  
 
 " ==================================================================================================
 " Visual Bell
@@ -260,42 +283,53 @@ let s:ac_ignore_dirs = [
     \ '**/node_modules',
     \ ]
 
-let s:cwd = getcwd()
-if (stridx(s:cwd, 'aircam') != -1)
-    echom "Setting RG filter to default to aircam!"
+" NOTE: Skyrg's filter class is not available until the plugins are loaded *after* the vimrc is
+" executed. Best way to set this up is to call this function on VimEnter, which happens "after  
+" all the startup stuff, executing the -c cmd arguments, creating all windows, and loading the
+" buffers in them."
+function! SetUpSkyrg()
+  let s:cwd = getcwd()
+  if (stridx(s:cwd, 'aircam') != -1)
+      echom "Setting RG filter to default to aircam!"
 
-    call g:SkyFilter.new("aircam")
-          \ .include_filetypes(s:ac_types)
-          \ .include_dirs(s:ac_search_dirs)
-          \ .ignore_filetypes(s:ac_ignore_types)
-          \ .ignore_dirs(s:ac_ignore_dirs)
+      call g:SkyFilter.new("aircam")
+            \ .include_filetypes(s:ac_types)
+            \ .include_dirs(s:ac_search_dirs)
+            \ .ignore_filetypes(s:ac_ignore_types)
+            \ .ignore_dirs(s:ac_ignore_dirs)
 
-    call g:SkyFilter.new("ios")
-          \ .include_filetypes(['djinni', 'mm', 'm', 'swift'])
-          \ .include_dirs(['mobile'])
-          \ .ignore_filetypes(s:ac_ignore_types)
-          \ .ignore_dirs(s:ac_ignore_dirs)
+      call g:SkyFilter.new("ios")
+            \ .include_filetypes(['djinni', 'mm', 'm', 'swift'])
+            \ .include_dirs(['mobile'])
+            \ .ignore_filetypes(s:ac_ignore_types)
+            \ .ignore_dirs(s:ac_ignore_dirs)
 
-    call g:SkyFilter.new("android")
-          \ .include_filetypes(['djinni', 'java', 'kt'])
-          \ .include_dirs(['mobile'])
-          \ .ignore_filetypes(s:ac_ignore_types)
-          \ .ignore_dirs(s:ac_ignore_dirs)
+      call g:SkyFilter.new("android")
+            \ .include_filetypes(['djinni', 'java', 'kt'])
+            \ .include_dirs(['mobile'])
+            \ .ignore_filetypes(s:ac_ignore_types)
+            \ .ignore_dirs(s:ac_ignore_dirs)
 
-    call g:SkyFilter.new("mcore")
-          \ .include_filetypes(['djinni', 'cc', 'h'])
-          \ .include_dirs(['mobile/shared'])
-          \ .ignore_filetypes(s:ac_ignore_types)
-          \ .ignore_dirs(s:ac_ignore_dirs)
+      call g:SkyFilter.new("mcore")
+            \ .include_filetypes(['djinni', 'cc', 'h'])
+            \ .include_dirs(['mobile/shared'])
+            \ .ignore_filetypes(s:ac_ignore_types)
+            \ .ignore_dirs(s:ac_ignore_dirs)
 
-    call g:SkyFilter.new("lcm")
-          \ .include_filetypes(['lcm', 'proto'])
-          \ .include_dirs(s:ac_search_dirs)
-          \ .ignore_filetypes(s:ac_ignore_types)
-          \ .ignore_dirs(s:ac_ignore_dirs)
+      call g:SkyFilter.new("lcm")
+            \ .include_filetypes(['lcm', 'proto'])
+            \ .include_dirs(s:ac_search_dirs)
+            \ .ignore_filetypes(s:ac_ignore_types)
+            \ .ignore_dirs(s:ac_ignore_dirs)
 
-    let g:SkyFilter.default = 'aircam'
-endif
+      let g:SkyFilter.default = 'aircam'
+  endif
+endfunction
+
+augroup create_skyrg_filters 
+  autocmd!
+  autocmd VimEnter * call SetUpSkyrg() 
+augroup end
 
 command! -nargs=* -bang RG call SkyRG(<f-args>)
 command! -nargs=* -bang RGN call SkyRG('--', <f-args>)
@@ -339,6 +373,7 @@ function! SetupForCLang()
     " map! <F5> <Esc>:!python ~/code/chromium/src/cef/tools/check_style.py %:p 2> lint.out<CR>:cfile lint.out<CR>:silent !rm lint.out<CR>:redraw!<CR>:cc<CR>
     " map  <F5> <Esc>:!python ~/code/chromium/src/cef/tools/check_style.py %:p 2> lint.out<CR>:cfile lint.out<CR>:silent !rm lint.out<CR>:redraw!<CR>:cc<CR>
 endfunction
+
 
 " From https://github.com/vim-scripts/google.vim/blob/master/indent/google.vim
 function! GoogleCppIndent()
@@ -409,21 +444,29 @@ set termguicolors
 let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
 let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 
-" Color scheme
-" autocmd vimenter * ++nested colorscheme gruvbox
-" autocmd vimenter * ++nested colorscheme monokai
-autocmd vimenter * ++nested colorscheme base16-gruvbox-dark-hard
+function! SetHighlightingOptions()
+  " let l:width = execute echo &textwidth
+  " let l:overlength_expr = printf("match OverLength /\%" . l:width . "v.\+/")
+  " echom l:overlength_expr
+  highlight OverLength guibg=#410000
+  " match OverLength /\%..\+/
+  " execute l:overlength_expr
+  highlight ColorColumn guibg=#000040
+  highlight CursorLine guibg=#000040
+  highlight YcmErrorLine guibg=#260000
+  highlight YcmErrorSection guibg=#760000
+endfunction
 
-" YCM highlighting behavior
-" highlight YcmErrorLine ctermbg=DarkRed
-" highlight YcmErrorSection ctermbg=White ctermfg=Black
-highlight YcmErrorLine guibg=#260000
-highlight YcmErrorSection guibg=#760000
+augroup set_colorscheme
+  autocmd!
+  autocmd vimenter * ++nested colorscheme base16-gruvbox-dark-hard
+  autocmd VimEnter,BufEnter,WinEnter * call SetHighlightingOptions()
+  " autocmd BufEnter * highlight OverLength guibg=#410000
+  " autocmd BufEnter * match OverLength "/\%11v.\+/"
+  " autocmd BufEnter * highlight ColorColumn guibg=#000040
+  " autocmd BufEnter * highlight CursorLine guibg=#000040
+augroup end
 
 " Ruler and margins
-set ruler
-set colorcolumn=101
-" highlight ColorColumn ctermbg=0 guibg=lightgrey
-" highlight OverLength ctermbg=darkred ctermfg=white guibg=#FFD9D9
-highlight ColorColumn guibg=#000072
-highlight OverLength guibg=#720000
+set cursorline
+
