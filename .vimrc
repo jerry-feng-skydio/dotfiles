@@ -225,6 +225,7 @@ augroup setup_filetypes
   autocmd BufNewFile,BufFilePre,BufRead *.kt set filetype=kotlin
   autocmd BufNewFile,BufFilePre,BufRead *.swift set filetype=swift
   autocmd BufNewFile,BufFilePre,BufRead *.vimrc,*.vim set filetype=vim
+  autocmd BufNewFile,BufFilePre,BufRead */COMMIT_EDITMSG set filetype=gitcommit
 augroup end
 
 " ==================================================================================================
@@ -246,6 +247,7 @@ augroup setup_filetype_editors
   autocmd FileType java call s:SetupEditor(2, 100)
   autocmd FileType python call s:SetupEditor(4, 100)
   autocmd FileType vim call s:SetupEditor(2, 100)
+  autocmd FileType gitcommit call s:SetupEditor(2, 80)
   autocmd FileType c,cc,cpp,objc,*.mm call SetupForCLang()
 
   " Sets up vim help docs to vsplit right
