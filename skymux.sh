@@ -15,7 +15,7 @@ layout_window() {
 
     # Side panes
     tmux select-pane -t 0            # Move back to first pane
-    tmux split-window -v -p 66 -c $1 # Vertical split, new bottom pane will be 66% of height
+    # tmux split-window -v -p 66 -c $1 # Vertical split, new bottom pane will be 66% of height
     tmux split-window -v -p 50 -c $1 # Vertical split, new bottom pane will be 50% of 66% -> 33%
     tmux select-pane -t 0            # Move back to first pane
 }
@@ -26,9 +26,9 @@ tmux new-session -d -s 'skymux' -x "$(tput cols)" -y "$(tput lines)"
 # TODO: Dynamically generate this list.
 # Layout panes for aircams
 layout_window ~/aircam ac0
-layout_window ~/aircam1 ac1
-layout_window ~/aircam2 ac2
-layout_window ~/aircam3 ac3
+# layout_window ~/aircam1 ac1
+# layout_window ~/aircam2 ac2
+# layout_window ~/aircam3 ac3
 
 # Clean up unused window
 tmux select-window -t ^ 

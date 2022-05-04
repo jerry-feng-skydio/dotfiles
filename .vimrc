@@ -324,6 +324,24 @@ function! SetUpSkyrg()
             \ .ignore_filetypes(s:ac_ignore_types)
             \ .ignore_dirs(s:ac_ignore_dirs)
 
+      call g:SkyFilter.new("bazel")
+            \ .include_filetypes(['bazel'])
+            \ .include_dirs(s:ac_search_dirs)
+            \ .ignore_filetypes(s:ac_ignore_types)
+            \ .ignore_dirs(s:ac_ignore_dirs)
+
+      call g:SkyFilter.new("gen")
+            \ .include_filetypes(['py', 'cc', 'h'])
+            \ .include_dirs(['build'])
+            \ .ignore_filetypes(s:ac_ignore_types)
+            \ .ignore_dirs([])
+
+      call g:SkyFilter.new("none")
+            \ .include_filetypes([])
+            \ .include_dirs([])
+            \ .ignore_filetypes([])
+            \ .ignore_dirs([])
+
       let g:SkyFilter.default = 'aircam'
   endif
 endfunction
