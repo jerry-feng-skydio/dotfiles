@@ -226,6 +226,7 @@ augroup setup_filetypes
   autocmd BufNewFile,BufFilePre,BufRead *.swift set filetype=swift
   autocmd BufNewFile,BufFilePre,BufRead *.vimrc,*.vim set filetype=vim
   autocmd BufNewFile,BufFilePre,BufRead */COMMIT_EDITMSG set filetype=gitcommit
+  autocmd BufNewFile,BufFilePre,BufRead *.proto set filetype=proto
 augroup end
 
 " ==================================================================================================
@@ -248,6 +249,7 @@ augroup setup_filetype_editors
   autocmd FileType python call s:SetupEditor(4, 100)
   autocmd FileType vim call s:SetupEditor(2, 100)
   autocmd FileType gitcommit call s:SetupEditor(2, 80)
+  autocmd FileType proto call s:SetupEditor(2, 100)
   autocmd FileType c,cc,cpp,objc,*.mm call SetupForCLang()
 
   " Sets up vim help docs to vsplit right
@@ -264,7 +266,19 @@ set novisualbell " turn off visual bell
 " ==================================================================================================
 " Mouse
 " ==================================================================================================
+" " Screen/tmux can also handle xterm mousiness, but Vim doesn't
+" " detect it by default.
+" if &term == "screen"
+" set ttymouse=xterm2
+" endif
+" 
+" if v:version >= 704 && &term =~ "^screen"
+" " Odds are good that this is a modern tmux, so let's pick the
+" " best mouse-handling mode.
+" set ttymouse=sgr
+" endif
 " Enable mouse control
+set ttymouse=sgr
 set mouse=a
 
 " ==================================================================================================
