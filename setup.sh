@@ -7,12 +7,32 @@ echo "parent path is ${parent_path}"
 cd ~
 
 # Delete any existing .bashrc and symlink to ours 
-rm ~/.bashrc
-ln -s "${parent_path}/.bashrc" "~/.bashrc"
+BASH_FILE=~/.bashrc_system
+if [ -f "$BASH_FILE" ]; then
+    echo "~/.bashrc_system already exists."
+else 
+    echo "Copying ~/.bashrc -> ~/.bashrc_system"
+    mv ~/.bashrc ~/.bashrc_system
+    ln -s "${parent_path}/.bashrc" ~/.bashrc
+fi
 
 # Ditto for vimrc
-rm ~/.vimrc
-ln -s "${parent_path}/.vimrc" "~/.vimrc"
+VIM_FILE=~/.vimrc
+if [ -f "$VIM_FILE" ]; then
+    echo "Removing old vimrc"
+    rm ~/.vimrc
+fi
+
+ln -s "${parent_path}/.vimrc" ~/.vimrc
+
+# Same for .tmux.conf
+TMUX_FILE=~/.tmux.conf
+if [ -f "$TMUX_FILE" ]; then
+    echo "Removing old tmux config file"
+    rm ~/.tmux.conf
+fi
+
+ln -s "${parent_path}/.tmux.conf" ~/.tmux.conf
 
 ####################################################################################################
 # 1Password stuff
@@ -57,7 +77,11 @@ cd ~/Downloads
 curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
 sudo dpkg -i ripgrep_13.0.0_amd64.deb
 
-# Install FZF?
+# Install FZF
+sudo apt-get install fzf
+
+# Install powerline
+sudo apt-get install powerline
 
 ####################################################################################################
 # Re-install vim with python 3.8:
@@ -67,6 +91,7 @@ sudo apt remove vim vim-runtime gvim
 
 # Clone vim and build from source
 # Note that we specify that the python3 command must be 'python3.8`
+# Pin to a vim version?
 cd ~
 git clone https://github.com/vim/vim.git 
 cd vim
@@ -107,8 +132,9 @@ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 vim -c 'PluginInstall' -c 'qa!'
 
 ####################################################################################################
-# Finish installing YCM 
+Finish installing YCM 
 ####################################################################################################
+cd ~/Downloads
 libclang_archive_name="libclang-10.0.0-x86_64-unknown-linux-gnu.tar.bz2"
 libclang_target_dir="~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/../clang_archives/"
 libclang_src_path="${parent_path}/resources/${libclang_archive_name}"
@@ -117,6 +143,10 @@ libclang_dst_path="$libclang_target_dir$libclang_archive_name"
 cd ~/.vim/bundle/YouCompleteMe
 
 # Checkout old version that is verified to work with our c++ compiler
+
+# NOTE: needed to do this or else submodule update fails
+git config --global url."https://".insteadOf git://
+
 git checkout 9309f77732bde34b7ecf9c2e154b9fcdf14c5295
 git submodule update --init --recursive
 

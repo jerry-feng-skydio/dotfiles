@@ -36,10 +36,9 @@ if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
 fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
-# case "$TERM" in
-    # xterm-color|*-256color) color_prompt=yes;;
-# esac
-export TERM=xterm-256color
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
 
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
@@ -116,102 +115,3 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-# BEGIN ANSIBLE MANAGED BLOCK
-HISTSIZE=100000
-HISTFILESIZE=200000
-
-export PROMPT_COMMAND='history -a'
-export PYTHONDONTWRITEBYTECODE=1
-export AIRCAM_ROOT=/home/skydio/aircam
-export PATH=${AIRCAM_ROOT}/build/host_third_party/bin:${PATH}
-export PATH=${AIRCAM_ROOT}/build/host_aircam/bin:${PATH}
-
-export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="eth0"
-
-eval "$(register-python-argcomplete launch_pipeline)"
-eval "$(register-python-argcomplete skyrun)"
-# END ANSIBLE MANAGED BLOCK
-
-export SKYREV_REMOTE_USER="jerry.feng"
-export SKYDIO_GERRIT_USERNAME="jerry.feng"
-
-# Alias for Yubikey pin prompt
-alias yubact="ssh-add -D && ssh-add -e /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so; ssh-add -s /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so"
-
-
-# Auto finds ssh-agent
-. ~/yubikey_scripts/ssh-find-agent/ssh-find-agent.sh
-ssh_find_agent -a
-if [ -z "/run/user/1000/keyring/ssh" ]
-then
-    eval SSH_AUTH_SOCK=/tmp/ssh-XuTl4nVH8MWX/agent.10905; export SSH_AUTH_SOCK;
-SSH_AGENT_PID=10906; export SSH_AGENT_PID;
-echo Agent pid 10906; > /dev/null
-    ssh-add -l >/dev/null || alias ssh='ssh-add -l >/dev/null || ssh-add && unalias ssh; ssh'
-fi
-
-# Git branch in prompt.
-
-parse_git_branch() {
-  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
-}
-
-# export PS1="\u@\h \W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ "
-export PS1="\u@\h \[\033[1;34m\]\W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ "
-#export PS1="\u@\h \[\033[1;34m\]\W\[\033[00m\] $ "
-
-# Disallow auto renaming windows
-DISABLE_AUTO_TITLE=true
-
-# Ctags generation shortcut
-alias ctaggen='ctags -R --exclude=.git --exclude="build/build/*" --exclude="build/clones/*" --exclude="build/deploy/*" --exclude="build/doc/*" --exclude="build/images/*" --exclude="build/install/*" --exclude="build/stamps/*" --exclude="build/web/*" --exclude="build/*.json" --exclude=clion-aircam-make-relwithdebinfo --exclude="third_party*" --exclude="shared/third_party*" --exclude=graveyard --exclude="tools/lcmtype_auto_translation/*"' 
-
-# Powerline configuration
-if [ -f /usr/share/powerline/bindings/bash/powerline.sh ]; then
-  powerline-daemon -q
-  POWERLINE_BASH_CONTINUATION=1
-  POWERLINE_BASH_SELECT=1
-  source /usr/share/powerline/bindings/bash/powerline.sh
-fi
-
-# Quick TMUX editing
-edit_tmux() {
-    vim ~/.tmux.conf
-    tmux source ~/.tmux.conf
-}
-
-edit_bashrc() {
-    vim ~/.bashrc
-    source ~/.bashrc
-}
-
-toggle_skymux_git() {
-    FILE=~/.iwanttmuxgitstatus
-    if test -f "$FILE"; then
-        echo "Disabling tmux git statuses"
-        rm $FILE
-    else
-        echo "Enabling tmux git statuses"
-        touch $FILE
-    fi
-}
-
-# Go to /home/skydio/ on session start
-#cd /home/skydio/
-
-skymux() {
-    ~/.dotfiles/./skymux.sh
-}
-
-alias adb_over_wifi="~/.dotfiles/./adb_over_wifi.sh"
-alias fast_android_build="~/.dotfiles/./fast_android_build.sh"
-alias skymux="~/.dotfiles/./skymux.sh"
-alias skyvpn="~/.dotfiles/./skyvpn.sh"
-alias watch_flight_deck="~/.dotfiles/./watch_vehicle_flight_deck.sh"
-alias grep_flight_deck="~/.dotfiles/grep_flight_deck.sh"
-alias lazy_ota="~/.dotfiles/lazy_ota.sh"
-alias jerry_first_time_setup="~/.dotfiles/setup.sh"
-
-export EDITOR=vim
-
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
