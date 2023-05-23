@@ -1,5 +1,10 @@
 source /etc/skel/.bashrc
 
+# Don't know why this isn't in the skel bashrc...
+alias yubact="ssh-add -D && ssh-add -e /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so; ssh-add -s /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so"
+. /usr/local/bin/ssh-find-agent.sh
+ssh_find_agent -a
+
 # Git branch in prompt.
 
 parse_git_branch() {
@@ -53,6 +58,21 @@ skymux() {
     ~/.dotfiles/./skymux.sh
 }
 
+# This sets aircam root and adds the aircam binaries path to our path.
+# We don't want to generically do this because it doesn't work with multiple aircams
+set_aircam_root() {
+    echo "Setting AIRCAM_ROOT to $(pwd)"
+    export AIRCAM_ROOT="$(pwd)"
+    export PATH=${AIRCAM_ROOT}/build/host_aircam/bin:${PATH}
+    export PATH=${AIRCAM_ROOT}/build/host_third_party/bin:${PATH}
+    echo $PATH
+}
+
+deploy_r47() {
+    ssh qcu -t "sudo rm -rf /home/skydio/bazel/aircam.runfiles/aircam/launch/vehicle_deploy/opencl_kernels/*"
+    ./skyrun bazel bazel_deploy --ignore_flashpack_version
+}
+
 alias adb_over_wifi="~/.dotfiles/./adb_over_wifi.sh"
 alias fast_android_build="~/.dotfiles/./fast_android_build.sh"
 alias skymux="~/.dotfiles/./skymux.sh"
@@ -63,5 +83,6 @@ alias lazy_ota="~/.dotfiles/lazy_ota.sh"
 alias jerry_first_time_setup="~/.dotfiles/setup.sh"
 
 export EDITOR=vim
+export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="enp6s0"
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
