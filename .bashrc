@@ -73,6 +73,7 @@ deploy_r47() {
     ./skyrun bazel bazel_deploy --ignore_flashpack_version
 }
 
+
 alias adb_over_wifi="~/.dotfiles/./adb_over_wifi.sh"
 alias fast_android_build="~/.dotfiles/./fast_android_build.sh"
 alias skymux="~/.dotfiles/./skymux.sh"
@@ -84,5 +85,6 @@ alias jerry_first_time_setup="~/.dotfiles/setup.sh"
 
 export EDITOR=vim
 export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="enp6s0"
+export CLOUD_CLIENT_EMAIL="jerry.feng@skydio.com"
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
