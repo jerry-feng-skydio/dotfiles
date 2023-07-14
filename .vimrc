@@ -100,7 +100,9 @@ set noswapfile
 if has("autocmd")
   au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
       \| exe "normal! g'\"zz" | endif
-      endif
+  au BufReadPost COMMIT_EDITMSG
+    \ exe "normal! gg"
+endif
 
 " Have Vim maintain undo history between sessions
 set undofile "
