@@ -73,8 +73,14 @@ deploy_r47() {
     ./skyrun bazel bazel_deploy --ignore_flashpack_version
 }
 
+blt() {
+    ssh qcu -t "bot-lcm-tunnel &"
+    ./skyrun bin bot-lcm-tunnel 192.168.11.1
+}
 
-alias adb_over_wifi="~/.dotfiles/./adb_over_wifi.sh"
+alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
+
+alias adb_wifi='bazel run //tools/dev_tools:c18_adb_phone -- wifi'
 alias fast_android_build="~/.dotfiles/./fast_android_build.sh"
 alias skymux="~/.dotfiles/./skymux.sh"
 alias skyvpn="~/.dotfiles/./skyvpn.sh"
@@ -82,6 +88,8 @@ alias watch_flight_deck="~/.dotfiles/./watch_vehicle_flight_deck.sh"
 alias grep_flight_deck="~/.dotfiles/grep_flight_deck.sh"
 alias lazy_ota="~/.dotfiles/lazy_ota.sh"
 alias jerry_first_time_setup="~/.dotfiles/setup.sh"
+alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
+alias oopsies='git add . && git commit --amend --no-edit && git push --force'
 
 export EDITOR=vim
 export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="enp6s0"

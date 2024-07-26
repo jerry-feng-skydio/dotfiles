@@ -18,6 +18,14 @@ case $key in
 	shift # past argument
 	shift # past value
 	;;
+	--qcu)
+	TARGET="192.168.11.1"
+	shift # past argument
+	;;
+	--nvu)
+	TARGET="192.168.11.2"
+	shift # past argument
+	;;
     -i|--identity)
     IDENTITY="$2"
 	shift # past argument

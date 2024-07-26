@@ -10,7 +10,7 @@ layout_window() {
     tmux new-window -n $BASENAME -c $1     # New window with name at second arg
     
     # Main pane (vim)
-    tmux split-window -h -p 75 -c $1 # Horizontal split, new right pane will be for vim
+    tmux split-window -h -p 80 -c $1 # Horizontal split, new right pane will be for vim
     tmux send-keys "vim" C-m         # First pane is dedicated to vim
 
     # Side panes

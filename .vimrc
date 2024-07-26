@@ -63,6 +63,8 @@ Plugin 'keith/swift.vim'
 
 Plugin 'jfeng94/skyrg'
 
+Plugin 'github/copilot.vim'
+
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -182,7 +184,7 @@ nnoremap <F9> :YcmCompleter RefactorRename
 nnoremap <leader><F1> :Buffers<cr>
 set pastetoggle=<leader><F2>
 nnoremap <leader><F3> :set number!<cr> :SignifyToggle<cr>
-nnoremap <leader><F4> :!./skyrun bin code_format<cr> :silent! bufdo e<cr> 
+nnoremap <leader><F4> :!./skyrun export code_format<cr> :silent! bufdo e<cr> 
 nnoremap <leader><F5> :source $MYVIMRC<cr> :e!<cr>
 " nnoremap <leader><F6>
 " nnoremap <leader><F7>
@@ -196,9 +198,10 @@ nnoremap <leader><F5> :source $MYVIMRC<cr> :e!<cr>
 
 "call code_format on file write
 function! SkydioCodeFormat()
-  let s:cwd = getcwd()
-  if (stridx(s:cwd, 'aircam') != -1)
-    silent exec '!./skyrun bin code_format %'
+  let s:cwd = expand('%:p')
+  " let s:cwd = getcwd()
+  if (stridx(s:cwd, 'aircam') != -1 && stridx(s:cwd, 'COMMIT_EDITMSG') == -1)
+    silent exec '!./skyrun export code_format %'
     " Calling e makes file reload happen faster (tested on mac, YMMV -- might be omitable)
     exec 'e'
     " if using vim, sometimes the screen buffer gets busted, this redraws the screen
