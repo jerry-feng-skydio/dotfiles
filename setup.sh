@@ -34,6 +34,19 @@ fi
 
 ln -s "${parent_path}/.tmux.conf" ~/.tmux.conf
 
+# inputrc
+TMUX_FILE=~/.inputrc
+if [ -f "$TMUX_FILE" ]; then
+    echo "Removing old tmux config file"
+    rm ~/.inputrc
+fi
+
+ln -s "${parent_path}/.inputrc" ~/.inputrc
+
+# Set up convenience symlink to aircam
+ln -s /home/skydio/aircam ~/aircam
+
+
 ####################################################################################################
 # 1Password stuff
 ####################################################################################################

@@ -55,7 +55,7 @@ toggle_skymux_git() {
 #cd /home/skydio/
 
 skymux() {
-    ~/.dotfiles/./skymux.sh
+    ~/dotfiles/./skymux.sh
 }
 
 # This sets aircam root and adds the aircam binaries path to our path.
@@ -81,15 +81,18 @@ blt() {
 alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
 
 alias adb_wifi='bazel run //tools/dev_tools:c18_adb_phone -- wifi'
-alias fast_android_build="~/.dotfiles/./fast_android_build.sh"
-alias skymux="~/.dotfiles/./skymux.sh"
-alias skyvpn="~/.dotfiles/./skyvpn.sh"
-alias watch_flight_deck="~/.dotfiles/./watch_vehicle_flight_deck.sh"
-alias grep_flight_deck="~/.dotfiles/grep_flight_deck.sh"
-alias lazy_ota="~/.dotfiles/lazy_ota.sh"
-alias jerry_first_time_setup="~/.dotfiles/setup.sh"
+alias fast_android_build="~/dotfiles/./fast_android_build.sh"
+alias skymux="~/dotfiles/./skymux.sh"
+alias skyvpn="~/dotfiles/./skyvpn.sh"
+alias watch_flight_deck="~/dotfiles/./watch_vehicle_flight_deck.sh"
+alias grep_flight_deck="~/dotfiles/grep_flight_deck.sh"
+alias lazy_ota="~/dotfiles/lazy_ota.sh"
+alias jerry_first_time_setup="~/dotfiles/setup.sh"
 alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
 alias oopsies='git add . && git commit --amend --no-edit && git push --force'
+
+alias gdf='cd ~/dotfiles'
+alias gac='cd ~/aircam'
 
 export EDITOR=vim
 export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="enp6s0"
