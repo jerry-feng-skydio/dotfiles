@@ -37,35 +37,35 @@ ln -s "${parent_path}/.tmux.conf" ~/.tmux.conf
 ####################################################################################################
 # 1Password stuff
 ####################################################################################################
-if ! command -v jq &> /dev/null; then
-    echo "Installing JQ"
-    sudo apt-get install jq
-fi
-
-# How to get their latest CLI?
-if ! command -v op &> /dev/null; then
-    echo "Installing 1password"
-    cli_vers="v1.12.3"
-    cli_plat="amd64"
-    cli_path="op_linux_${cli_plat}_${cli_vers}" 
-    cli_archive="${cli_path}.zip"
-    cli_url="https://cache.agilebits.com/dist/1P/op/pkg/${cli_vers}/${cli_archive}"
-    
-    rm $cli_archive
-    rm -rf $cli_path
-    mkdir ${cli_path}
-
-    echo "Downloading: ${cli_url}" 
-    curl "$cli_url" -o "$cli_archive"
-    file-roller --extract-to=${cli_path} ${cli_archive}
-
-    sudo mv "${cli_path}/op" "/usr/local/bin/"
-fi
-
-source ~/.bashrc
-
-# Force first time signin
-op signin skydio.1password.com jerry.feng@skydio.com
+# if ! command -v jq &> /dev/null; then
+#     echo "Installing JQ"
+#     sudo apt-get install jq
+# fi
+# 
+# # How to get their latest CLI?
+# if ! command -v op &> /dev/null; then
+#     echo "Installing 1password"
+#     cli_vers="v1.12.3"
+#     cli_plat="amd64"
+#     cli_path="op_linux_${cli_plat}_${cli_vers}" 
+#     cli_archive="${cli_path}.zip"
+#     cli_url="https://cache.agilebits.com/dist/1P/op/pkg/${cli_vers}/${cli_archive}"
+#     
+#     rm $cli_archive
+#     rm -rf $cli_path
+#     mkdir ${cli_path}
+# 
+#     echo "Downloading: ${cli_url}" 
+#     curl "$cli_url" -o "$cli_archive"
+#     file-roller --extract-to=${cli_path} ${cli_archive}
+# 
+#     sudo mv "${cli_path}/op" "/usr/local/bin/"
+# fi
+# 
+# source ~/.bashrc
+# 
+# # Force first time signin
+# op signin skydio.1password.com jerry.feng@skydio.com
 
 ####################################################################################################
 # Set up more env stuff
@@ -84,35 +84,38 @@ sudo apt-get install fzf
 sudo apt-get install powerline
 
 ####################################################################################################
-# Re-install vim with python 3.8:
+# Re-install vim 9.1 with python 3
 ####################################################################################################
-# Uninstall pre-existing versions of vim:
+# Prereqs
+sudo apt install libncurses5-dev libgtk2.0-dev libatk1.0-dev \
+libcairo2-dev libx11-dev libxpm-dev libxt-dev python2-dev \
+python3-dev ruby-dev lua5.2 liblua5.2-dev libperl-dev git
+
+# Uninstall existing vim
 sudo apt remove vim vim-runtime gvim
 
-# Clone vim and build from source
-# Note that we specify that the python3 command must be 'python3.8`
-# Pin to a vim version?
+# Build from source
 cd ~
-git clone https://github.com/vim/vim.git 
+git clone https://github.com/vim/vim.git
 cd vim
 ./configure --with-features=huge \
             --enable-multibyte \
             --enable-rubyinterp=yes \
             --enable-python3interp=yes \
-            --with-python3-config-dir=$(python3.8-config --configdir) \
-            --with-python3-command=python3.8 \
+            --with-python3-config-dir=$(python3-config --configdir) \
             --enable-perlinterp=yes \
             --enable-luainterp=yes \
             --enable-gui=gtk2 \
             --enable-cscope \
             --prefix=/usr/local
 
-make VIMRUNTIMEDIR=/usr/local/share/vim/vim82
+make VIMRUNTIMEDIR=/usr/local/share/vim/vim91
 
-# Install vim
-sudo make install
+sudo apt install checkinstall
+cd ~/vim
+sudo checkinstall
 
-# Set vim as default editor (updating vi is optional)
+# Set default editor
 sudo update-alternatives --install /usr/bin/editor editor /usr/local/bin/vim 1
 sudo update-alternatives --set editor /usr/local/bin/vim
 sudo update-alternatives --install /usr/bin/vi vi /usr/local/bin/vim 1
@@ -120,7 +123,6 @@ sudo update-alternatives --set vi /usr/local/bin/vim
 
 # Refresh
 source ~/.bashrc
-
 
 ####################################################################################################
 # Install Vundle, install plugins
@@ -132,41 +134,66 @@ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 vim -c 'PluginInstall' -c 'qa!'
 
 ####################################################################################################
-Finish installing YCM 
+# Finish installing YCM
 ####################################################################################################
-cd ~/Downloads
-libclang_archive_name="libclang-10.0.0-x86_64-unknown-linux-gnu.tar.bz2"
-libclang_target_dir="~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/../clang_archives/"
-libclang_src_path="${parent_path}/resources/${libclang_archive_name}"
-libclang_dst_path="$libclang_target_dir$libclang_archive_name"
+# # Old Bionic installation steps
+# cd ~/Downloads
+# libclang_archive_name="libclang-10.0.0-x86_64-unknown-linux-gnu.tar.bz2"
+# libclang_target_dir="~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/../clang_archives/"
+# libclang_src_path="${parent_path}/resources/${libclang_archive_name}"
+# libclang_dst_path="$libclang_target_dir$libclang_archive_name"
+#
+# cd ~/.vim/bundle/YouCompleteMe
+#
+# # Checkout old version that is verified to work with our c++ compiler
+#
+# # NOTE: needed to do this or else submodule update fails
+# git config --global url."https://".insteadOf git://
+#
+# git checkout 9309f77732bde34b7ecf9c2e154b9fcdf14c5295
+# git submodule update --init --recursive
+#
+# # Download the libclang file I've attached above, then move it into YCM. Be aware that your paths
+# # may be different from mine
+# cp "$libclang_src_path" "$libclang_dst_path"
+#
+# python3.8 install.py --clang-completer
 
+# Seems like we need this to avoid nexus issues?
+# https://skydio.slack.com/archives/C0FRG352B/p1704400919790879?thread_ts=1704400558.799539&cid=C0FRG352B
+sudo apt autoremove --purge apt-file
+
+# Prereqs
+sudo apt install build-essential cmake python3-dev
+apt install mono-complete golang nodejs openjdk-17-jdk openjdk-17-jre npm
+
+# Had to upgrade go
+# TODO: Replace with script dir
+go_tar_path="${parent_path}/resources/go1.23.4.linux-amd64.tar.gz"
+sudo rm -rf /usr/bin/go && sudo tar -C /usr/local -xzf "$go_tar_path" 
+export PATH=$PATH:/usr/local/go/bin
+source ~/.bashrc
+
+go version
+
+# Build YCM
 cd ~/.vim/bundle/YouCompleteMe
 
-# Checkout old version that is verified to work with our c++ compiler
+# Had to modify ~/.vim/bundle/YouCompleteMe/third_party/ycmd/build.py
+# Replace smth BooleanArgument with "store_true"
+sed "s/argparse.BooleanOptionalArgument/'store_true'/1" third_party/ycmd/build.py
 
-# NOTE: needed to do this or else submodule update fails
-git config --global url."https://".insteadOf git://
-
-git checkout 9309f77732bde34b7ecf9c2e154b9fcdf14c5295
-git submodule update --init --recursive
-
-# Download the libclang file I've attached above, then move it into YCM. Be aware that your paths
-# may be different from mine
-cp "$libclang_src_path" "$libclang_dst_path"
-
-python3.8 install.py --clang-completer
+python3 install.py --all --verbose
 
 # Refresh
 source ~/.bashrc
 
-####################################################################################################
 # Verify 
-####################################################################################################
 echo "Verifying vim installation..."
 vim_version=$(vim --version)
 
 if grep -q 'python3.8' <<< "$vim_version"; then
-    echo "Vim has python 3.8"
+	echo "Vim has python 3.8"
 fi
 
 
