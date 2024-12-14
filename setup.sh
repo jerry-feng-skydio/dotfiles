@@ -194,7 +194,7 @@ cd ~/.vim/bundle/YouCompleteMe
 
 # Had to modify ~/.vim/bundle/YouCompleteMe/third_party/ycmd/build.py
 # Replace smth BooleanArgument with "store_true"
-sed "s/argparse.BooleanOptionalArgument/'store_true'/1" third_party/ycmd/build.py
+sed -i "s/argparse.BooleanOptionalArgument/'store_true'/1" third_party/ycmd/build.py
 
 python3 install.py --all --verbose
 
