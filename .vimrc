@@ -51,6 +51,9 @@ Plugin 'mhinz/vim-signify'
 " Color schemes
 Plugin 'morhetz/gruvbox'
 Plugin 'chriskempson/base16-vim'
+Plugin 'pR0Ps/molokai-dark'
+Plugin 'altercation/solarized'
+Plugin 'altercation/vim-colors-solarized'
 
 " djinni syntax highlighting
 Plugin 'r0mai/vim-djinni'
@@ -60,6 +63,8 @@ Plugin 'udalov/kotlin-vim'
 
 " swift syntax highlighting
 Plugin 'keith/swift.vim'
+
+Plugin 'sheerun/vim-polyglot'
 
 Plugin 'jfeng94/skyrg'
 
@@ -487,24 +492,35 @@ function! SetHighlightingOptions()
   " let l:width = execute echo &textwidth
   " let l:overlength_expr = printf("match OverLength /\%" . l:width . "v.\+/")
   " echom l:overlength_expr
-  highlight OverLength guibg=#410000
+  " highlight OverLength guibg=#410000
   " match OverLength /\%..\+/
   " execute l:overlength_expr
-  highlight ColorColumn guibg=#000040
-  highlight CursorLine guibg=#000040
-  highlight YcmErrorLine guibg=#260000
-  highlight YcmErrorSection guibg=#760000
+  " highlight ColorColumn guibg=#000040
+  " highlight CursorLine guibg=#000010
+  " highlight YcmErrorLine guibg=#260000
+  " highlight YcmErrorSection guibg=#760000
 endfunction
 
-augroup set_colorscheme
-  autocmd!
-  autocmd vimenter * ++nested colorscheme base16-gruvbox-dark-hard
-  autocmd VimEnter,BufEnter,WinEnter * call SetHighlightingOptions()
+" augroup set_colorscheme
+  " autocmd!
+  " autocmd vimenter * ++nested colorscheme base16-gruvbox-dark-hard
+  " autocmd vimenter * ++nested colorscheme solarized
+  " autocmd VimEnter,BufEnter,WinEnter * call SetHighlightingOptions()
   " autocmd BufEnter * highlight OverLength guibg=#410000
   " autocmd BufEnter * match OverLength "/\%11v.\+/"
   " autocmd BufEnter * highlight ColorColumn guibg=#000040
   " autocmd BufEnter * highlight CursorLine guibg=#000040
-augroup end
+" augroup end
+
+let g:solarized_termcolors = 256
+let g:solarized_termtrans = 1
+let g:solarized_degrade = 0 
+let g:solarized_bold = 1
+let g:solarized_underline = 1 
+let g:solarized_italic = 1 
+let g:solarized_contrast = "normal"
+let g:solarized_visibility= "normal"
+colorscheme solarized
 
 " Ruler and margins
 set cursorline

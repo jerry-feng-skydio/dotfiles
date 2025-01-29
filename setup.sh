@@ -124,9 +124,8 @@ cd vim
 
 make VIMRUNTIMEDIR=/usr/local/share/vim/vim91
 
-sudo apt install checkinstall
 cd ~/vim
-sudo checkinstall
+sudo make install
 
 # Set default editor
 sudo update-alternatives --install /usr/bin/editor editor /usr/local/bin/vim 1
