@@ -29,6 +29,9 @@ if [ -f /usr/share/powerline/bindings/bash/powerline.sh ]; then
   source /usr/share/powerline/bindings/bash/powerline.sh
 fi
 
+# Add android platform tools to path
+export PATH=~/Android/Sdk/platform-tools:${PATH}
+
 # Quick TMUX editing
 edit_tmux() {
     vim ~/.tmux.conf
@@ -80,6 +83,7 @@ blt() {
 
 alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
 
+alias studio=="~/android-studio/bin/./studio.sh"
 alias adb_wifi='bazel run //tools/dev_tools:c18_adb_phone -- wifi'
 alias fast_android_build="~/dotfiles/./fast_android_build.sh"
 alias skymux="~/dotfiles/./skymux.sh"
@@ -93,6 +97,8 @@ alias oopsies='git add . && git commit --amend --no-edit && git push --force'
 
 alias gdf='cd ~/dotfiles'
 alias gac='cd ~/aircam'
+
+alias glp="git log --pretty=oneline"
 
 export EDITOR=vim
 export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="enp6s0"
