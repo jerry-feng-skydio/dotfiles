@@ -520,8 +520,11 @@ let g:solarized_underline = 1
 let g:solarized_italic = 1 
 let g:solarized_contrast = "normal"
 let g:solarized_visibility= "normal"
-colorscheme solarized
+" colorscheme solarized
+colorscheme molokai-dark 
 
 " Ruler and margins
 set cursorline
 
+let &t_TI = ""
+let &t_TE = ""

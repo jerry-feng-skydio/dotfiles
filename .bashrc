@@ -94,6 +94,7 @@ alias lazy_ota="~/dotfiles/lazy_ota.sh"
 alias jerry_first_time_setup="~/dotfiles/setup.sh"
 alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
 alias oopsies='git add . && git commit --amend --no-edit && git push --force'
+alias order='python3 ~/dotfiles/ordered_grep.py'
 
 alias gdf='cd ~/dotfiles'
 alias gac='cd ~/aircam'
