@@ -60,6 +60,7 @@ def parse_grep(lines, hide_log_file, after, before):
     times = list()
 
     reformatted_lines = list()
+    untimestamped_lines = list()
 
     longest_file_info = 0;
 
@@ -83,6 +84,8 @@ def parse_grep(lines, hide_log_file, after, before):
 
             if len(file_info) > longest_file_info:
                 longest_file_info = len(file_info)
+        else:
+            untimestamped_lines.append(line)
 
     sorted_timestamps = sorted(times, key=cmp_to_key(compare_time))
 
@@ -93,6 +96,8 @@ def parse_grep(lines, hide_log_file, after, before):
             reformatted_lines.append(f"{color_seq}{timestamp}{log_message}")
         else:
             reformatted_lines.append(f"{color_seq}{timestamp} [{file_info.rjust(longest_file_info)}]{log_message}")
+
+    reformatted_lines.extend(untimestamped_lines)
 
     return reformatted_lines
 
@@ -139,7 +144,6 @@ if __name__ == "__main__":
     if args.regex:
         cmd.append("-E")
 
-
     regexes = list()
 
     if args.pattern != None:
@@ -166,7 +170,11 @@ if __name__ == "__main__":
         for line in lines:
             for pattern in args.pattern:
                 matches = re.finditer(pattern, line)
+                matches_reversed = list()
                 for match in matches:
+                    matches_reversed.insert(0, match)
+
+                for match in matches_reversed:
                     line = line[:match.start()] + colored(match.group(), "cyan") + line[match.end():]
             print(line)
 

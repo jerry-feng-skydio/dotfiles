@@ -101,6 +101,11 @@ alias gac='cd ~/aircam'
 
 alias glp="git log --pretty=oneline"
 
+alias gle="git log --oneline"
+alias revupl="./skyrun bin revup upload"
+alias revupa="./skyrun bin revup amend"
+alias revupr="./skyrun bin revup restack"
+
 export EDITOR=vim
 export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="enp6s0"
 export CLOUD_CLIENT_EMAIL="jerry.feng@skydio.com"
