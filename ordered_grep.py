@@ -57,9 +57,9 @@ class Timing:
             return self.utime < other.utime
 
 class LogMessage:
-    def __init__(self, timing, source_file, message, color):
+    def __init__(self, timing, log_file, message, color):
         self.timing = timing
-        self.source_file = source_file
+        self.log_file = log_file
         self.message = message
         self.color = color
 
@@ -71,22 +71,23 @@ class LogMessage:
 
     def __str__(self):
         timestamp = ""
+        utime = ""
+
         if self.timing != None:
-            timestamp += self.timing.time.strftime(time_format)
+            timestamp = "[" + self.timing.time.strftime(time_format) + "] "
             utime = (
-                f" [{self.timing.utime:15.6f}] "
+                f"[{self.timing.utime:15.6f}] "
                 if self.timing.utime >= 0
-                else " [" + ("-" * 15) + "] "
+                else "[" + ("-" * 15) + "] "
             )
 
-            timestamp += utime
-
-        source_file = (
-            f"[{self.source_file.rjust(LONGEST_FILE_INFO)}] "
-            if HIDE_SOURCE
+        global HIDE_SOURCE
+        log_file = (
+            f"[{self.log_file.rjust(LONGEST_FILE_INFO)}] "
+            if not HIDE_SOURCE
             else ""
         )
-        return f"{self.color}{timestamp}{source_file}{self.message}"
+        return f"{self.color}{log_file}{utime}{timestamp}{self.message}"
 
 def timestamp_to_datetime(time):
     return datetime.datetime.strptime(time, time_format)
@@ -94,12 +95,18 @@ def timestamp_to_datetime(time):
 def set_clock_timestamp_to_datetime(time):
     return datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
 
-def extract_source_file(line):
+def systemd_timestamp_to_datetime(time):
+    #  Aug 15 15:04:58
+    new_time = datetime.datetime.strptime(time, "%b %d %H:%M:%S")
+    new_time.replace(datetime.datetime.now().year)
+    return new_time
+
+def extract_log_file(line):
     idx = line.find(":")
     if idx != -1:
-        source_file = line[:idx]
+        log_file = line[:idx]
         text = line[idx+1:]
-        return source_file, text
+        return log_file, text
 
     return "", line
 
@@ -134,10 +141,23 @@ def extract_uclock_set_timestamp(line):
 
     return None, line
 
+def extract_systemd_timestamp(line):
+    #  Aug 15 15:04:58
+    systemd_timestamp_pattern = re.compile(r"[a-zA-Z]{3} \d{2} \d{2}:\d{2}:\d{2}")
+    m = systemd_timestamp_pattern.search(line)
+    if m != None:
+        time = m.group()
+        datetime = systemd_timestamp_to_datetime(time)
+        return Timing(datetime, 0), line[m.end():].lstrip()
+
+    return None, line
+
 def extract_timing_info(line):
     timing, log_message = extract_runmode_start_timestamp(line)
     if timing == None:
         timing, log_message = extract_uclock_set_timestamp(line)
+    if timing == None:
+        timing, log_message = extract_systemd_timestamp(line)
 
     if timing == None:
         timing, log_message = extract_nominal_timestamp(line)
@@ -154,7 +174,7 @@ def parse_grep(lines, hide_log_file, after, before):
     untimestamped_lines = list()
 
     for line in lines:
-        source_file, text = extract_source_file(line)
+        log_file, text = extract_log_file(line)
         timing, message = extract_timing_info(text)
         if timing == None:
             untimestamped_lines.append(line)
@@ -164,10 +184,10 @@ def parse_grep(lines, hide_log_file, after, before):
             continue
         else:
             color = extract_first_color_sequence(text)
-            messages.append(LogMessage(timing, source_file, message, color))
+            messages.append(LogMessage(timing, log_file, message, color))
             global LONGEST_FILE_INFO
-            if len(source_file) > LONGEST_FILE_INFO:
-                LONGEST_FILE_INFO = len(source_file)
+            if len(log_file) > LONGEST_FILE_INFO:
+                LONGEST_FILE_INFO = len(log_file)
 
     return sorted(messages), untimestamped_lines
 
@@ -215,10 +235,12 @@ if __name__ == "__main__":
                         help="Use extended regex")
     parser.add_argument("--hide_source_log",
                         "-x",
+                        default=False,
                         action="store_true",
                         help="Don't print source log info to condense output")
 
     args = parser.parse_args()
+
     HIDE_SOURCE = args.hide_source_log
 
     cmd = [
