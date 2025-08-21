@@ -28,7 +28,8 @@ ansi_escape_pattern = re.compile(r'(\x1b\[[0-9;]*m)')
 time_format = "%Y-%m-%dT%H:%M:%S"
 
 HIDE_SOURCE = False
-LONGEST_FILE_INFO = 0
+LONGEST_LOG_FILE_STRING = 0
+LONGEST_SOURCE_FILE_STRING = 0
 
 colors = [
     "red",
@@ -57,9 +58,10 @@ class Timing:
             return self.utime < other.utime
 
 class LogMessage:
-    def __init__(self, timing, log_file, message, color):
+    def __init__(self, timing, log_file, source_file, message, color):
         self.timing = timing
         self.log_file = log_file
+        self.source_file = source_file
         self.message = message
         self.color = color
 
@@ -83,11 +85,17 @@ class LogMessage:
 
         global HIDE_SOURCE
         log_file = (
-            f"[{self.log_file.rjust(LONGEST_FILE_INFO)}] "
+            f"[{self.log_file.rjust(LONGEST_LOG_FILE_STRING)}] "
             if not HIDE_SOURCE
             else ""
         )
-        return f"{self.color}{log_file}{utime}{timestamp}{self.message}"
+
+        source_file = (
+            f"[{self.source_file.rjust(LONGEST_SOURCE_FILE_STRING)}] "
+            if not HIDE_SOURCE
+            else ""
+        )
+        return f"{self.color}{log_file}{utime}{timestamp}{source_file}{self.message}"
 
 def timestamp_to_datetime(time):
     return datetime.datetime.strptime(time, time_format)
@@ -164,6 +172,37 @@ def extract_timing_info(line):
 
     return timing, log_message
 
+def extract_cpp_py_source(line):
+    source_pattern = re.compile(r".+\.(cc|h|py):\d+:")
+    m = source_pattern.search(line)
+    if m != None:
+        source_file = m.group()[:-1]
+        return source_file, line[m.end():].lstrip()
+
+    return None, line
+
+def extract_systemd_source(line):
+    timestamp = r"[a-zA-Z]{3} \d{2} \d{2}:\d{2}:\d{2}"
+    vehicle = r"[a-zA-Z0-9\-\_\.]+"
+    service = r"[a-zA-Z0-9\-\_\.]+\[[0-9]+\]"
+    source_pattern = re.compile(f"{timestamp}\s{vehicle}\s{service}:")
+    m = source_pattern.search(line)
+    if m != None:
+        source_group = m.group()[:-1]
+        service_pattern = re.compile(service)
+        source_service = service_pattern.search(source_group).group()
+        return source_service, line[m.end():].lstrip()
+
+    return None, line
+
+def extract_source_file(line):
+    source_file, log_message = extract_cpp_py_source(line)
+
+    if source_file == None:
+        source_file, log_message = extract_systemd_source(line)
+
+    return source_file if source_file != None else "", log_message
+
 def extract_first_color_sequence(line):
     color_seq_match = ansi_escape_pattern.search(line)
     color_seq = color_seq_match.group() if color_seq_match != None else ""
@@ -176,6 +215,7 @@ def parse_grep(lines, hide_log_file, after, before):
     for line in lines:
         log_file, text = extract_log_file(line)
         timing, message = extract_timing_info(text)
+        source_file, stripped_message = extract_source_file(message)
         if timing == None:
             untimestamped_lines.append(line)
         elif after != None and timing.time < after:
@@ -184,10 +224,14 @@ def parse_grep(lines, hide_log_file, after, before):
             continue
         else:
             color = extract_first_color_sequence(text)
-            messages.append(LogMessage(timing, log_file, message, color))
-            global LONGEST_FILE_INFO
-            if len(log_file) > LONGEST_FILE_INFO:
-                LONGEST_FILE_INFO = len(log_file)
+            messages.append(LogMessage(timing, log_file, source_file, stripped_message, color))
+            global LONGEST_LOG_FILE_STRING
+            if len(log_file) > LONGEST_LOG_FILE_STRING:
+                LONGEST_LOG_FILE_STRING = len(log_file)
+
+            global LONGEST_SOURCE_FILE_STRING
+            if len(source_file) > LONGEST_SOURCE_FILE_STRING:
+                LONGEST_SOURCE_FILE_STRING = len(source_file)
 
     return sorted(messages), untimestamped_lines
 
