@@ -27,7 +27,7 @@ ansi_escape_pattern = re.compile(r'(\x1b\[[0-9;]*m)')
 
 time_format = "%Y-%m-%dT%H:%M:%S"
 
-HIDE_SOURCE = False
+FORMAT = "lutsm"
 LONGEST_LOG_FILE_STRING = 0
 LONGEST_SOURCE_FILE_STRING = 0
 
@@ -83,19 +83,25 @@ class LogMessage:
                 else "[" + ("-" * 15) + "] "
             )
 
-        global HIDE_SOURCE
-        log_file = (
-            f"[{self.log_file.rjust(LONGEST_LOG_FILE_STRING)}] "
-            if not HIDE_SOURCE
-            else ""
-        )
+        log_file = f"[{self.log_file.rjust(LONGEST_LOG_FILE_STRING)}] "
+        source_file = f"[{self.source_file.rjust(LONGEST_SOURCE_FILE_STRING)}] "
 
-        source_file = (
-            f"[{self.source_file.rjust(LONGEST_SOURCE_FILE_STRING)}] "
-            if not HIDE_SOURCE
-            else ""
-        )
-        return f"{self.color}{log_file}{utime}{timestamp}{source_file}{self.message}"
+        string = self.color
+        for letter in FORMAT:
+            if letter == "l":
+                string += log_file
+            elif letter == "u":
+                string += utime
+            elif letter == "t":
+                string += timestamp
+            elif letter == "s":
+                string += source_file
+            elif letter == "m":
+                string += self.message
+            else:
+                print(f"unknown format option {letter}")
+
+        return string
 
 def timestamp_to_datetime(time):
     return datetime.datetime.strptime(time, time_format)
@@ -208,7 +214,7 @@ def extract_first_color_sequence(line):
     color_seq = color_seq_match.group() if color_seq_match != None else ""
     return color_seq
 
-def parse_grep(lines, hide_log_file, after, before):
+def parse_grep(lines, after, before):
     messages = list()
     untimestamped_lines = list()
 
@@ -277,15 +283,23 @@ if __name__ == "__main__":
                         action="store_true",
                         default=True,
                         help="Use extended regex")
-    parser.add_argument("--hide_source_log",
-                        "-x",
-                        default=False,
-                        action="store_true",
-                        help="Don't print source log info to condense output")
+    parser.add_argument("--format",
+                        "-f",
+                        type=str,
+                        default="lutsm",
+                        help="Order in which to write out. l - Log File, u - utime, t - timestamp, s - source/service, m - log message. Default is 'lutsm'"
+                        )
+    #  parser.add_argument("--hide_source_log",
+                        #  "-x",
+                        #  default=False,
+                        #  action="store_true",
+                        #  help="Don't print source log info to condense output")
 
     args = parser.parse_args()
 
-    HIDE_SOURCE = args.hide_source_log
+    FORMAT = args.format
+
+    #  HIDE_SOURCE = args.hide_source_log
 
     cmd = [
         "grep",
@@ -315,7 +329,6 @@ if __name__ == "__main__":
         output = subprocess.check_output(cmd).decode('utf-8').split("\n")
         messages, unordered = parse_grep(
             output,
-            args.hide_source_log,
             timestamp_to_datetime(args.after) if args.after != None else None,
             timestamp_to_datetime(args.before) if args.before != None else None
         )
