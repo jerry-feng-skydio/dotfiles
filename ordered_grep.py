@@ -57,13 +57,21 @@ class Timing:
         else:
             return self.utime < other.utime
 
+class Source:
+    def __init(self, service, log_file, source_file, run):
+        self.service = service
+        self.log_file = log_file
+        self.source_file
+        self.run = run
+
 class LogMessage:
-    def __init__(self, timing, log_file, source_file, message, color):
+    def __init__(self, timing, log_file, source_file, message, color, raw_line):
         self.timing = timing
         self.log_file = log_file
         self.source_file = source_file
         self.message = message
         self.color = color
+        self.raw_line = raw_line
 
     def __lt__(self, other):
         if not isinstance(other, LogMessage):
@@ -98,6 +106,8 @@ class LogMessage:
                 string += source_file
             elif letter == "m":
                 string += self.message
+            elif letter == "r":
+                string += self.raw_line
             else:
                 print(f"unknown format option {letter}")
 
@@ -112,7 +122,7 @@ def set_clock_timestamp_to_datetime(time):
 def systemd_timestamp_to_datetime(time):
     #  Aug 15 15:04:58
     new_time = datetime.datetime.strptime(time, "%b %d %H:%M:%S")
-    new_time.replace(datetime.datetime.now().year)
+    new_time = new_time.replace(year=datetime.datetime.now().year)
     return new_time
 
 def extract_log_file(line):
@@ -169,9 +179,10 @@ def extract_systemd_timestamp(line):
 def extract_timing_info(line):
     timing, log_message = extract_runmode_start_timestamp(line)
     if timing == None:
-        timing, log_message = extract_uclock_set_timestamp(line)
-    if timing == None:
         timing, log_message = extract_systemd_timestamp(line)
+
+    if timing == None:
+        timing, log_message = extract_uclock_set_timestamp(line)
 
     if timing == None:
         timing, log_message = extract_nominal_timestamp(line)
@@ -191,7 +202,8 @@ def extract_systemd_source(line):
     timestamp = r"[a-zA-Z]{3} \d{2} \d{2}:\d{2}:\d{2}"
     vehicle = r"[a-zA-Z0-9\-\_\.]+"
     service = r"[a-zA-Z0-9\-\_\.]+\[[0-9]+\]"
-    source_pattern = re.compile(f"{timestamp}\s{vehicle}\s{service}:")
+    #  source_pattern = re.compile(f"{timestamp}\s+{vehicle}\s+{service}:")
+    source_pattern = re.compile(f"{vehicle}\s+{service}:")
     m = source_pattern.search(line)
     if m != None:
         source_group = m.group()[:-1]
@@ -202,10 +214,9 @@ def extract_systemd_source(line):
     return None, line
 
 def extract_source_file(line):
-    source_file, log_message = extract_cpp_py_source(line)
-
+    source_file, log_message = extract_systemd_source(line)
     if source_file == None:
-        source_file, log_message = extract_systemd_source(line)
+        source_file, log_message = extract_cpp_py_source(line)
 
     return source_file if source_file != None else "", log_message
 
@@ -230,7 +241,7 @@ def parse_grep(lines, after, before):
             continue
         else:
             color = extract_first_color_sequence(text)
-            messages.append(LogMessage(timing, log_file, source_file, stripped_message, color))
+            messages.append(LogMessage(timing, log_file, source_file, stripped_message, color, line))
             global LONGEST_LOG_FILE_STRING
             if len(log_file) > LONGEST_LOG_FILE_STRING:
                 LONGEST_LOG_FILE_STRING = len(log_file)
