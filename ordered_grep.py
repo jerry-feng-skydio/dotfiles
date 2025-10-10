@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import json
+import os
 import re
 import subprocess
 import sys
@@ -28,7 +29,8 @@ ansi_escape_pattern = re.compile(r'(\x1b\[[0-9;]*m)')
 time_format = "%Y-%m-%dT%H:%M:%S"
 
 FORMAT = "lutsm"
-LONGEST_LOG_FILE_STRING = 0
+LONGEST_LOG_FILEPATH_STRING = 0
+LONGEST_LOG_FILENAME_STRING = 0
 LONGEST_SOURCE_FILE_STRING = 0
 
 colors = [
@@ -65,9 +67,10 @@ class Source:
         self.run = run
 
 class LogMessage:
-    def __init__(self, timing, log_file, source_file, message, color, raw_line):
+    def __init__(self, timing, log_file, log_filename, source_file, message, color, raw_line):
         self.timing = timing
         self.log_file = log_file
+        self.log_filename = log_filename
         self.source_file = source_file
         self.message = message
         self.color = color
@@ -91,13 +94,16 @@ class LogMessage:
                 else "[" + ("-" * 15) + "] "
             )
 
-        log_file = f"[{self.log_file.rjust(LONGEST_LOG_FILE_STRING)}] "
+        log_file = f"[{self.log_file.rjust(LONGEST_LOG_FILEPATH_STRING)}] "
+        log_filename = f"[{self.log_filename.rjust(LONGEST_LOG_FILENAME_STRING)}] "
         source_file = f"[{self.source_file.rjust(LONGEST_SOURCE_FILE_STRING)}] "
 
         string = self.color
         for letter in FORMAT:
             if letter == "l":
                 string += log_file
+            elif letter == "n":
+                string += log_filename
             elif letter == "u":
                 string += utime
             elif letter == "t":
@@ -241,10 +247,16 @@ def parse_grep(lines, after, before):
             continue
         else:
             color = extract_first_color_sequence(text)
-            messages.append(LogMessage(timing, log_file, source_file, stripped_message, color, line))
-            global LONGEST_LOG_FILE_STRING
-            if len(log_file) > LONGEST_LOG_FILE_STRING:
-                LONGEST_LOG_FILE_STRING = len(log_file)
+            log_filename = log_file.split('/')[-1]
+            messages.append(LogMessage(timing, log_file, log_filename, source_file, stripped_message, color, line))
+            global LONGEST_LOG_FILEPATH_STRING
+            if len(log_file) > LONGEST_LOG_FILEPATH_STRING:
+                LONGEST_LOG_FILEPATH_STRING = len(log_file)
+
+
+            global LONGEST_LOG_FILENAME_STRING
+            if len(log_filename) > LONGEST_LOG_FILENAME_STRING:
+                LONGEST_LOG_FILENAME_STRING = len(log_filename)
 
             global LONGEST_SOURCE_FILE_STRING
             if len(source_file) > LONGEST_SOURCE_FILE_STRING:
@@ -264,6 +276,38 @@ def highlight_search_terms(line, color, patterns):
 
     return line
 
+def parse_process_logs_and_fix_timestamps(filepath: str):
+    #  print(f"processing {filepath}")
+    try:
+        with open(filepath, 'r') as file:
+            lines = file.readlines()
+
+        last_header = ""
+
+        reformatted_lines = []
+        for line in lines:
+            source_pattern = re.compile(r".+\.(cc|h|py):\d+:")
+            m = source_pattern.search(line)
+            if m != None:
+                last_header = line[:m.end()]
+                reformatted_lines.append(line)
+            else:
+                reformatted_line = f"{last_header} {line}"
+                reformatted_lines.append(reformatted_line)
+
+        with open(filepath, 'w') as file:
+            file.writelines(reformatted_lines)
+
+
+    except Exception as e:
+        print(e)
+
+
+def fix_timestamps(directory: str):
+    for root, dirs, files in os.walk(directory, followlinks=False):
+        for file in files:
+            path = os.path.join(root, file)
+            parse_process_logs_and_fix_timestamps(path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
@@ -300,17 +344,22 @@ if __name__ == "__main__":
                         default="lutsm",
                         help="Order in which to write out. l - Log File, u - utime, t - timestamp, s - source/service, m - log message. Default is 'lutsm'"
                         )
-    #  parser.add_argument("--hide_source_log",
-                        #  "-x",
-                        #  default=False,
-                        #  action="store_true",
-                        #  help="Don't print source log info to condense output")
+    parser.add_argument("--fix_missing_timestamps",
+                        "-x",
+                        action="store_true",
+                        default=False,
+                        help="DESTRUCTIVE ACTION! Iterate through process logs and try and attach timestamps from last known line for lines that don't start with timestamps"
+                        )
 
     args = parser.parse_args()
 
     FORMAT = args.format
 
+    directory = args.directory if args.directory is not None else "."
+
     #  HIDE_SOURCE = args.hide_source_log
+    if args.fix_missing_timestamps:
+        fix_timestamps(directory)
 
     cmd = [
         "grep",
@@ -333,9 +382,13 @@ if __name__ == "__main__":
             cmd.append("-e")
             cmd.append(pattern)
 
-    cmd.append(".")
+    if args.directory is not None:
+        cmd.append(args.directory)
+    else:
+        cmd.append(".")
 
     print(cmd)
+
     try:
         output = subprocess.check_output(cmd).decode('utf-8').split("\n")
         messages, unordered = parse_grep(

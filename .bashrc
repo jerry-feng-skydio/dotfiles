@@ -111,3 +111,4 @@ export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="enp6s0"
 export CLOUD_CLIENT_EMAIL="jerry.feng@skydio.com"
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+export AWS_PROFILE=default
