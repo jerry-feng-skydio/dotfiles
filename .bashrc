@@ -81,8 +81,57 @@ blt() {
     ./skyrun bin bot-lcm-tunnel 192.168.11.1
 }
 
-alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
 
+fpl() {
+  local host="c38"
+  local needle="$1"
+
+  if [[ -z "$needle" ]]; then
+    echo "Usage: find_process_logs <process_name>" >&2
+    return 1
+  fi
+
+  ssh -t "$host" 'bash -s' -- "$needle" <<'EOF'
+set -euo pipefail
+
+needle="$1"
+
+pids=$(
+  top -b -n 1 |
+    awk -v needle="$needle" '
+      $1 ~ /^[0-9]+$/ {
+        cmd = ""
+        for (i = 12; i <= NF; i++) {
+          cmd = cmd (i == 12 ? "" : " ") $i
+        }
+
+        if (index(cmd, needle) &&
+            cmd !~ /^grep / &&
+            cmd !~ /^awk / &&
+            cmd !~ /^bash -s /) {
+          print $1
+        }
+      }
+    '
+)
+
+if [[ -z "$pids" ]]; then
+  echo "No matching processes found for: $needle" >&2
+  exit 1
+fi
+
+pid_regex=$(echo "$pids" | paste -sd'|' -)
+
+echo "Matching PIDs: $(echo "$pids" | paste -sd',' -)" >&2
+
+logcat -v threadtime | awk -v pids="$pid_regex" '
+  $3 ~ "^(" pids ")$" { print }
+'
+EOF
+}
+
+
+alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
 alias studio=="~/android-studio/bin/./studio.sh"
 alias adb_wifi='bazel run //tools/dev_tools:c18_adb_phone -- wifi'
 alias fast_android_build="~/dotfiles/./fast_android_build.sh"
@@ -95,6 +144,7 @@ alias jerry_first_time_setup="~/dotfiles/setup.sh"
 alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
 alias oopsies='git add . && git commit --amend --no-edit && git push --force'
 alias order='python3 ~/dotfiles/ordered_grep.py'
+alias decrypt="./skyrun bin decrypt_debug_logs_tar"
 
 alias gdf='cd ~/dotfiles'
 alias gac='cd ~/aircam'
@@ -112,3 +162,6 @@ export CLOUD_CLIENT_EMAIL="jerry.feng@skydio.com"
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 export AWS_PROFILE=default
+
+export PATH=/home/skydio/software/android-sdk-skydio-v2/platform-tools:$PATH
+export PATH=$HOME/.local/bin:$PATH
