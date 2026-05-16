@@ -1,5 +1,22 @@
 #!/bin/bash
 
+while getopts ":hn:" opt; do
+  case ${opt} in
+    h ) # Help flag
+      echo "Usage: $0 [-h] [-s soft_reset]"
+      exit 0
+      ;;
+    n ) # Name flag with value
+      soft_reset=$OPTARG
+      ;;
+    \? ) # Invalid option
+      echo "Invalid option: -$OPTARG" 1>&2
+      exit 1
+      ;;
+  esac
+done
+
+
 # Move to script location
 # parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 parent_path="$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )"
@@ -46,6 +63,12 @@ ln -s "${parent_path}/.inputrc" ~/.inputrc
 # Set up convenience symlink to aircam
 ln -s /home/skydio/aircam ~/aircam
 
+if soft_reset
+	echo "soft resetting"
+	exit 0
+fi 
+
+exit 0
 
 ####################################################################################################
 # 1Password stuff

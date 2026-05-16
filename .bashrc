@@ -156,6 +156,16 @@ alias revupl="./skyrun bin revup upload"
 alias revupa="./skyrun bin revup amend"
 alias revupr="./skyrun bin revup restack"
 
+jroot=
+
+alias jfcoder="ssh main.jfeng-claude.jerry-feng.coder"
+alias jfcoder_aosp="ssh main.jfeng-aosp.jerry-feng.coder"
+alias jfgit="git -C ~/.dotfiles/"
+alias jfvim="vim ~/.dotfiles"
+alias jfbrc="vim ~/.dotfiles/.bashrc"
+alias jfvrc="vim ~/.dotfiles/.vimrc"
+alias jfsrc="source ~/.dotfiles/.bashrc"`
+
 export EDITOR=vim
 export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="enp6s0"
 export CLOUD_CLIENT_EMAIL="jerry.feng@skydio.com"
