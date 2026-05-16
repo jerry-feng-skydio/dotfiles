@@ -1,153 +1,137 @@
 #!/bin/bash
+set -euo pipefail
 
-while getopts ":hn:" opt; do
+# Log everything for debugging on ephemeral machines
+SETUP_LOG="/tmp/setup-$(date +%s).log"
+exec > >(tee -a "$SETUP_LOG") 2>&1
+echo "Setup log: $SETUP_LOG"
+
+####################################################################################################
+# Parse flags
+####################################################################################################
+soft_reset=false
+
+while getopts ":hs" opt; do
   case ${opt} in
-    h ) # Help flag
-      echo "Usage: $0 [-h] [-s soft_reset]"
+    h )
+      echo "Usage: $0 [-h] [-s]"
+      echo "  -s  Soft reset: only re-link dotfiles, skip installs"
       exit 0
       ;;
-    n ) # Name flag with value
-      soft_reset=$OPTARG
+    s )
+      soft_reset=true
       ;;
-    \? ) # Invalid option
+    \? )
       echo "Invalid option: -$OPTARG" 1>&2
       exit 1
       ;;
   esac
 done
 
+####################################################################################################
+# Resolve script directory
+####################################################################################################
+PARENT_PATH="$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )"
+echo "Dotfiles path: ${PARENT_PATH}"
 
-# Move to script location
-# parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
-parent_path="$( cd -- "$( dirname -- "$0" )" &> /dev/null && pwd )"
-echo "parent path is ${parent_path}"
-cd ~
-
-# Delete any existing .bashrc and symlink to ours 
-BASH_FILE=~/.bashrc_system
+####################################################################################################
+# Cache the default bashrc before overwriting
+####################################################################################################
+BASH_FILE=~/.bashrc_system_default
 if [ -f "$BASH_FILE" ]; then
-    echo "~/.bashrc_system already exists."
-else 
-    echo "Copying ~/.bashrc -> ~/.bashrc_system"
-    mv ~/.bashrc ~/.bashrc_system
-    ln -s "${parent_path}/.bashrc" ~/.bashrc
+    echo "${BASH_FILE} already exists."
+elif [ -f ~/.bashrc ]; then
+    echo "Copying ~/.bashrc -> ${BASH_FILE}"
+    cp ~/.bashrc "$BASH_FILE"
 fi
 
-# Ditto for vimrc
-VIM_FILE=~/.vimrc
-if [ -f "$VIM_FILE" ]; then
-    echo "Removing old vimrc"
-    rm ~/.vimrc
+####################################################################################################
+# Symlink dotfiles
+####################################################################################################
+reset_link() {
+    local name=$1
+    local dotfiles_path="${PARENT_PATH}/$name"
+    local home_path="${HOME}/$name"
+    echo "Linking $dotfiles_path -> $home_path"
+    ln -sf "$dotfiles_path" "$home_path"
+}
+
+reset_link ".bashrc"
+reset_link ".vimrc"
+reset_link ".tmux.conf"
+reset_link ".inputrc"
+reset_link ".gitconfig"
+
+# Set up convenience symlink to aircam (only if the target exists)
+if [ -d /home/skydio/aircam ]; then
+    ln -sf /home/skydio/aircam ~/aircam
 fi
 
-ln -s "${parent_path}/.vimrc" ~/.vimrc
-
-# Same for .tmux.conf
-TMUX_FILE=~/.tmux.conf
-if [ -f "$TMUX_FILE" ]; then
-    echo "Removing old tmux config file"
-    rm ~/.tmux.conf
+if [ "$soft_reset" = "true" ]; then
+    echo "Soft reset complete — dotfiles re-linked."
+    exit 0
 fi
 
-ln -s "${parent_path}/.tmux.conf" ~/.tmux.conf
-
-# inputrc
-TMUX_FILE=~/.inputrc
-if [ -f "$TMUX_FILE" ]; then
-    echo "Removing old tmux config file"
-    rm ~/.inputrc
-fi
-
-ln -s "${parent_path}/.inputrc" ~/.inputrc
-
-# Set up convenience symlink to aircam
-ln -s /home/skydio/aircam ~/aircam
-
-if soft_reset
-	echo "soft resetting"
-	exit 0
-fi 
-
-exit 0
+####################################################################################################
+# Update package lists
+####################################################################################################
+sudo apt-get update -y
 
 ####################################################################################################
-# 1Password stuff
+# Install CLI tools
 ####################################################################################################
-# if ! command -v jq &> /dev/null; then
-#     echo "Installing JQ"
-#     sudo apt-get install jq
-# fi
-# 
-# # How to get their latest CLI?
-# if ! command -v op &> /dev/null; then
-#     echo "Installing 1password"
-#     cli_vers="v1.12.3"
-#     cli_plat="amd64"
-#     cli_path="op_linux_${cli_plat}_${cli_vers}" 
-#     cli_archive="${cli_path}.zip"
-#     cli_url="https://cache.agilebits.com/dist/1P/op/pkg/${cli_vers}/${cli_archive}"
-#     
-#     rm $cli_archive
-#     rm -rf $cli_path
-#     mkdir ${cli_path}
-# 
-#     echo "Downloading: ${cli_url}" 
-#     curl "$cli_url" -o "$cli_archive"
-#     file-roller --extract-to=${cli_path} ${cli_archive}
-# 
-#     sudo mv "${cli_path}/op" "/usr/local/bin/"
-# fi
-# 
-# source ~/.bashrc
-# 
-# # Force first time signin
-# op signin skydio.1password.com jerry.feng@skydio.com
-
-####################################################################################################
-# Set up more env stuff
-####################################################################################################
-# Let's do all of this work in downloads
-cd ~/Downloads
-
 # Install rg
-curl -LO https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
-sudo dpkg -i ripgrep_13.0.0_amd64.deb
+if ! command -v rg &> /dev/null; then
+    echo "Installing ripgrep..."
+    curl -fLo /tmp/ripgrep.deb \
+        https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb
+    sudo dpkg -i /tmp/ripgrep.deb
+    rm -f /tmp/ripgrep.deb
+fi
 
 # Install FZF
-sudo apt-get install fzf
+sudo apt-get install -y fzf
 
 # Install powerline
-sudo apt-get install powerline
+sudo apt-get install -y powerline
 
 ####################################################################################################
-# Re-install vim 9.1 with python 3
+# Re-install vim with python 3
 ####################################################################################################
 # Prereqs
-sudo apt install libncurses5-dev libgtk2.0-dev libatk1.0-dev \
-libcairo2-dev libx11-dev libxpm-dev libxt-dev python2-dev \
-python3-dev ruby-dev lua5.2 liblua5.2-dev libperl-dev git
+sudo apt-get install -y libncurses5-dev libgtk2.0-dev libatk1.0-dev \
+    libcairo2-dev libx11-dev libxpm-dev libxt-dev python2-dev \
+    python3-dev ruby-dev lua5.2 liblua5.2-dev libperl-dev git
 
 # Uninstall existing vim
-sudo apt remove vim vim-runtime gvim
+sudo apt-get remove -y vim vim-runtime gvim || true
 
-# Build from source
-cd ~
-git clone https://github.com/vim/vim.git
-cd vim
+# Build from source — pin to a tag for reproducibility
+VIM_TAG="v9.1.0"
+if [ -d ~/vim ]; then
+    echo "~/vim already exists, pulling latest for ${VIM_TAG}..."
+    cd ~/vim && git fetch --tags
+else
+    git clone --depth 1 --branch "$VIM_TAG" https://github.com/vim/vim.git ~/vim
+fi
+cd ~/vim
+git checkout "$VIM_TAG"
+
 ./configure --with-features=huge \
             --enable-multibyte \
             --enable-rubyinterp=yes \
             --enable-python3interp=yes \
-            --with-python3-config-dir=$(python3-config --configdir) \
+            --with-python3-config-dir="$(python3-config --configdir)" \
             --enable-perlinterp=yes \
             --enable-luainterp=yes \
             --enable-gui=gtk2 \
             --enable-cscope \
             --prefix=/usr/local
 
-make VIMRUNTIMEDIR=/usr/local/share/vim/vim91
+# Derive runtime dir from the version instead of hardcoding
+VIM_VER=$(sed -n 's/.*VIM_VERSION_NODOT\s*=\s*\(vim[0-9]*\).*/\1/p' Makefile || echo "vim91")
+make VIMRUNTIMEDIR="/usr/local/share/vim/${VIM_VER}"
 
-cd ~/vim
 sudo make install
 
 # Set default editor
@@ -156,14 +140,15 @@ sudo update-alternatives --set editor /usr/local/bin/vim
 sudo update-alternatives --install /usr/bin/vi vi /usr/local/bin/vim 1
 sudo update-alternatives --set vi /usr/local/bin/vim
 
-# Refresh
-source ~/.bashrc
-
 ####################################################################################################
 # Install Vundle, install plugins
 ####################################################################################################
-# Clone vundle into vim bundles
-git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+if [ ! -d ~/.vim/bundle/Vundle.vim ]; then
+    git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+fi
+
+# Ensure undo dir exists for vimrc's undofile setting
+mkdir -p ~/.vim/undodir
 
 # Call :PluginInstall from command line, then exit
 vim -c 'PluginInstall' -c 'qa!'
@@ -171,64 +156,48 @@ vim -c 'PluginInstall' -c 'qa!'
 ####################################################################################################
 # Finish installing YCM
 ####################################################################################################
-# # Old Bionic installation steps
-# cd ~/Downloads
-# libclang_archive_name="libclang-10.0.0-x86_64-unknown-linux-gnu.tar.bz2"
-# libclang_target_dir="~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/../clang_archives/"
-# libclang_src_path="${parent_path}/resources/${libclang_archive_name}"
-# libclang_dst_path="$libclang_target_dir$libclang_archive_name"
-#
-# cd ~/.vim/bundle/YouCompleteMe
-#
-# # Checkout old version that is verified to work with our c++ compiler
-#
-# # NOTE: needed to do this or else submodule update fails
-# git config --global url."https://".insteadOf git://
-#
-# git checkout 9309f77732bde34b7ecf9c2e154b9fcdf14c5295
-# git submodule update --init --recursive
-#
-# # Download the libclang file I've attached above, then move it into YCM. Be aware that your paths
-# # may be different from mine
-# cp "$libclang_src_path" "$libclang_dst_path"
-#
-# python3.8 install.py --clang-completer
-
 # Seems like we need this to avoid nexus issues?
 # https://skydio.slack.com/archives/C0FRG352B/p1704400919790879?thread_ts=1704400558.799539&cid=C0FRG352B
-sudo apt autoremove --purge apt-file
+sudo apt-get autoremove -y --purge apt-file || true
 
 # Prereqs
-sudo apt install build-essential cmake python3-dev
-apt install mono-complete golang nodejs openjdk-17-jdk openjdk-17-jre npm
+sudo apt-get install -y build-essential cmake python3-dev
+sudo apt-get install -y mono-complete golang nodejs openjdk-17-jdk openjdk-17-jre npm
 
-# Had to upgrade go
-# TODO: Replace with script dir
-go_tar_path="${parent_path}/resources/go1.23.4.linux-amd64.tar.gz"
-sudo rm -rf /usr/bin/go && sudo tar -C /usr/local -xzf "$go_tar_path" 
-export PATH=$PATH:/usr/local/go/bin
-source ~/.bashrc
-
-go version
+# Upgrade go from bundled tarball
+go_tar_path="${PARENT_PATH}/resources/go1.23.4.linux-amd64.tar.gz"
+if [ -f "$go_tar_path" ]; then
+    sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf "$go_tar_path"
+    export PATH=/usr/local/go/bin:$PATH
+    go version
+else
+    echo "WARNING: Go tarball not found at $go_tar_path, skipping Go upgrade"
+fi
 
 # Build YCM
 cd ~/.vim/bundle/YouCompleteMe
 
 # Had to modify ~/.vim/bundle/YouCompleteMe/third_party/ycmd/build.py
-# Replace smth BooleanArgument with "store_true"
-sed -i "s/argparse.BooleanOptionalArgument/'store_true'/1" third_party/ycmd/build.py
+# Replace BooleanOptionalAction with "store_true" for older python compat
+sed -i "s/argparse.BooleanOptionalAction/'store_true'/g" third_party/ycmd/build.py
 
 python3 install.py --all --verbose
 
-# Refresh
-source ~/.bashrc
-
-# Verify 
+####################################################################################################
+# Verify
+####################################################################################################
+echo ""
+echo "========================================"
 echo "Verifying vim installation..."
-vim_version=$(vim --version)
+vim_version=$(vim --version | head -2)
+echo "$vim_version"
 
-if grep -q 'python3.8' <<< "$vim_version"; then
-	echo "Vim has python 3.8"
+if vim --version | grep -q '+python3'; then
+    echo "OK: Vim has python3 support"
+else
+    echo "WARNING: Vim does NOT have python3 support"
 fi
 
-
+echo ""
+echo "Setup complete. Log saved to: $SETUP_LOG"
+echo "Run 'source ~/.bashrc' in your shell to pick up changes."
