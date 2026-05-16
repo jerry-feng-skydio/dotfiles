@@ -33,6 +33,9 @@ Plugin 'junegunn/fzf.vim'
 " Autocompletion engine
 Plugin 'Valloric/YouCompleteMe'
 
+" LSP client (for clangd, pyright, etc.)
+Plugin 'neoclide/coc.nvim', {'branch': 'release'}
+
 " Switch between header and cc file
 Bundle 'vim-scripts/a.vim'
 
@@ -384,7 +387,45 @@ command! -nargs=0 RGF call skyrg#form#open()
 command! -nargs=0 RGP call skyrg#panel#open()
 nnoremap <leader>rg :RGP<cr>
 nnoremap <C-@> :RGP<cr>
-nnoremap <leader>? :YRefs<cr>
+nnoremap <leader>gr :YRefs<cr>
+
+" ==================================================================================================
+" CoC (LSP) Configuration
+" ==================================================================================================
+" Navigation
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Show documentation in preview window
+nnoremap <silent> K :call CocActionAsync('doHover')<cr>
+
+" Use coc-references with SkyRG browse panel
+function! s:CocRefsToSkyRG() abort
+  let l:refs = CocAction('references')
+  if empty(l:refs)
+    echohl WarningMsg | echo 'No references found' | echohl None
+    return
+  endif
+  let l:matches = []
+  for l:r in l:refs
+    let l:file = substitute(l:r.uri, '^file://', '', '')
+    let l:line = l:r.range.start.line + 1
+    let l:col = l:r.range.start.character + 1
+    let l:text = ''
+    if filereadable(l:file)
+      let l:lines = readfile(l:file, '', l:line)
+      if len(l:lines) >= l:line
+        let l:text = trim(l:lines[l:line - 1])
+      endif
+    endif
+    call add(l:matches, {'file': l:file, 'line': l:line, 'col': l:col, 'text': l:text})
+  endfor
+  call skyrg#panel#browse(l:matches, 'References ('.len(l:matches).')')
+endfunction
+command! -nargs=0 CocRefs call s:CocRefsToSkyRG()
+nnoremap <leader>gr :CocRefs<cr>
 
 " ==================================================================================================
 " Signify Configuration
@@ -528,8 +569,17 @@ let g:solarized_underline = 1
 let g:solarized_italic = 1 
 let g:solarized_contrast = "normal"
 let g:solarized_visibility= "normal"
-" colorscheme solarized
-colorscheme molokai-dark 
+" Hostname-based colorscheme
+let s:host = hostname()
+if s:host =~# 'home'
+  colorscheme molokai-dark
+elseif s:host =~# 'work\|skydio\|corp'
+  colorscheme gruvbox
+  set background=dark
+else
+  colorscheme solarized
+  set background=dark
+endif
 
 " Ruler and margins
 set cursorline

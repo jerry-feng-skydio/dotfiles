@@ -13,9 +13,21 @@ parse_git_branch() {
   git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
 }
 
-# export PS1="\u@\h \W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ "
-export PS1="\u@\h \[\033[1;34m\]\W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ "
-#export PS1="\u@\h \[\033[1;34m\]\W\[\033[00m\] $ "
+# Hostname-based prompt color
+case "$(hostname)" in
+  *home*)
+    # Blue cwd, green git branch
+    export PS1="\u@\h \[\033[1;34m\]\W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ "
+    ;;
+  *work*|*skydio*|*corp*)
+    # Yellow cwd, cyan git branch
+    export PS1="\u@\h \[\033[1;33m\]\W\[\033[36m\]\$(parse_git_branch)\[\033[00m\] $ "
+    ;;
+  *)
+    # Magenta cwd, green git branch
+    export PS1="\u@\h \[\033[1;35m\]\W\[\033[32m\]\$(parse_git_branch)\[\033[00m\] $ "
+    ;;
+esac
 
 # Disallow auto renaming windows
 DISABLE_AUTO_TITLE=true
