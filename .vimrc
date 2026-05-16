@@ -381,7 +381,9 @@ augroup end
 command! -nargs=* -bang -complete=customlist,skyrg#complete#rg RG call skyrg#search(<f-args>)
 command! -nargs=* -bang RGN call skyrg#search('--', <f-args>)
 command! -nargs=0 RGF call skyrg#form#open()
-nnoremap <leader>rg :RGF<cr>
+command! -nargs=0 RGP call skyrg#panel#open()
+nnoremap <leader>rg :RGP<cr>
+nnoremap <C-@> :RGP<cr>
 
 " ==================================================================================================
 " Signify Configuration
