@@ -378,7 +378,7 @@ augroup create_skyrg_filters
   autocmd VimEnter * call SetUpSkyrg() 
 augroup end
 
-command! -nargs=* -bang RG call skyrg#search(<f-args>)
+command! -nargs=* -bang -complete=customlist,skyrg#complete#rg RG call skyrg#search(<f-args>)
 command! -nargs=* -bang RGN call skyrg#search('--', <f-args>)
 
 " ==================================================================================================
