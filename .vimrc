@@ -9,6 +9,9 @@ filetype off                  " required
 " ==================================================================================================
 set rtp+=~/.fzf
 
+" Load SkyRG from local dotfiles submodule for easy iteration
+set rtp+=~/.dotfiles/skyrg-plugin
+
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 
@@ -66,7 +69,7 @@ Plugin 'keith/swift.vim'
 
 Plugin 'sheerun/vim-polyglot'
 
-Plugin 'jfeng94/skyrg'
+" SkyRG loaded via rtp from ~/.dotfiles/skyrg-plugin (submodule)
 
 Plugin 'github/copilot.vim'
 
@@ -375,8 +378,8 @@ augroup create_skyrg_filters
   autocmd VimEnter * call SetUpSkyrg() 
 augroup end
 
-command! -nargs=* -bang RG call SkyRG(<f-args>)
-command! -nargs=* -bang RGN call SkyRG('--', <f-args>)
+command! -nargs=* -bang RG call skyrg#search(<f-args>)
+command! -nargs=* -bang RGN call skyrg#search('--', <f-args>)
 
 " ==================================================================================================
 " Signify Configuration
