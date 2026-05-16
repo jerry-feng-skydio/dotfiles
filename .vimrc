@@ -184,7 +184,7 @@ nnoremap <F7> :YcmShowDetailedDiagnostic<cr>
 nnoremap <F8> :YcmCompleter FixIt<cr>
 
 nnoremap <F9> :YcmCompleter RefactorRename
-" nnoremap <F10>
+nnoremap <F10> :YRefs<cr>
 " F11 is full screen
 " nnoremap <F12>
 
@@ -384,6 +384,7 @@ command! -nargs=0 RGF call skyrg#form#open()
 command! -nargs=0 RGP call skyrg#panel#open()
 nnoremap <leader>rg :RGP<cr>
 nnoremap <C-@> :RGP<cr>
+nnoremap <leader>? :YRefs<cr>
 
 " ==================================================================================================
 " Signify Configuration
