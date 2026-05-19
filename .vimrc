@@ -73,6 +73,9 @@ Plugin 'udalov/kotlin-vim'
 " swift syntax highlighting
 Plugin 'keith/swift.vim'
 
+" Ansi escape sequence interpretation, for process log viewing
+Plugin 'powerman/vim-plugin-AnsiEsc'
+
 Plugin 'sheerun/vim-polyglot'
 
 " SkyRG loaded via rtp from ~/.dotfiles/skyrg-plugin (submodule)
@@ -306,7 +309,7 @@ set mouse=a
 " FZF Configuration
 " ==================================================================================================
 " Default configurations
-let s:ac_types = ['py', 'cc', 'h', 'lcm', 'proto', 'djinni', 'mm', 'm', 'swift', 'java', 'kt', 'cmake']
+let s:ac_types = ['py', 'cc', 'h', 'lcm', 'proto', 'djinni', 'mm', 'm', 'swift', 'java', 'kt', 'cmake', 'tsx', 'bazel']
 let s:ac_ignore_types = []
 
 " NOTE: All directory paths are relative.
@@ -370,6 +373,12 @@ function! SetUpSkyrg()
             \ .include_dirs(['build'])
             \ .ignore_filetypes(s:ac_ignore_types)
             \ .ignore_dirs([])
+
+      call g:SkyFilter.new("web")
+            \ .include_filetypes(s:ac_types)
+            \ .include_dirs(s:ac_search_dirs)
+            \ .ignore_filetypes(s:ac_ignore_types)
+            \ .ignore_dirs(s:ac_ignore_dirs)
 
       call g:SkyFilter.new("none")
             \ .include_filetypes([])
@@ -591,3 +600,5 @@ set cursorline
 
 let &t_TI = ""
 let &t_TE = ""
+
+autocmd BufRead,BufNewFile * if expand('%:p') =~ "process_logs" | AnsiEsc

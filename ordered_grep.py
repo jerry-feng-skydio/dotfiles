@@ -208,8 +208,7 @@ def extract_systemd_source(line):
     timestamp = r"[a-zA-Z]{3} \d{2} \d{2}:\d{2}:\d{2}"
     vehicle = r"[a-zA-Z0-9\-\_\.]+"
     service = r"[a-zA-Z0-9\-\_\.]+\[[0-9]+\]"
-    #  source_pattern = re.compile(f"{timestamp}\s+{vehicle}\s+{service}:")
-    source_pattern = re.compile(f"{vehicle}\s+{service}:")
+    source_pattern = re.compile(f"\s{vehicle}\s{service}:")
     m = source_pattern.search(line)
     if m != None:
         source_group = m.group()[:-1]
