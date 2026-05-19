@@ -12,6 +12,9 @@ set rtp+=~/.fzf
 " Load SkyRG from local dotfiles submodule for easy iteration
 set rtp+=~/.dotfiles/skyrg-plugin
 
+" LCM syntax highlighting
+set rtp+=~/.dotfiles/vim-lcm
+
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 
@@ -243,6 +246,7 @@ augroup setup_filetypes
   autocmd BufNewFile,BufFilePre,BufRead *.vimrc,*.vim set filetype=vim
   autocmd BufNewFile,BufFilePre,BufRead */COMMIT_EDITMSG set filetype=gitcommit
   autocmd BufNewFile,BufFilePre,BufRead *.proto set filetype=proto
+  autocmd BufNewFile,BufFilePre,BufRead *.lcm set filetype=lcm
 augroup end
 
 " ==================================================================================================
@@ -266,6 +270,7 @@ augroup setup_filetype_editors
   autocmd FileType vim call s:SetupEditor(2, 100)
   autocmd FileType gitcommit call s:SetupEditor(2, 80)
   autocmd FileType proto call s:SetupEditor(2, 100)
+  autocmd FileType lcm call s:SetupEditor(2, 100)
   autocmd FileType c,cc,cpp,objc,*.mm call SetupForCLang()
 
   " Sets up vim help docs to vsplit right
