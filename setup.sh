@@ -75,9 +75,6 @@ reset_link ".tmux.conf"
 reset_link ".inputrc"
 reset_link ".gitconfig"
 
-# .vimrc references ~/.dotfiles/ for rtp plugins (skyrg-plugin, vim-lcm)
-ln -sfn "$PARENT_PATH" ~/.dotfiles
-
 # Set up convenience symlink to aircam (only if the target exists)
 if [ -d /home/skydio/aircam ]; then
     ln -sf /home/skydio/aircam ~/aircam

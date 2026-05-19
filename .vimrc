@@ -7,13 +7,17 @@ filetype off                  " required
 " ==================================================================================================
 " Env management
 " ==================================================================================================
+" Resolve the dotfiles repo root from this symlinked .vimrc, so rtp works
+" regardless of where the repo is cloned.
+let s:dotfiles_dir = fnamemodify(resolve(expand('<sfile>')), ':h')
+
 set rtp+=~/.fzf
 
 " Load SkyRG from local dotfiles submodule for easy iteration
-set rtp+=~/.dotfiles/skyrg-plugin
+let &rtp .= ',' . s:dotfiles_dir . '/skyrg-plugin'
 
 " LCM syntax highlighting
-set rtp+=~/.dotfiles/vim-lcm
+let &rtp .= ',' . s:dotfiles_dir . '/vim-lcm'
 
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
