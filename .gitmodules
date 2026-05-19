@@ -1,3 +1,4 @@
 [submodule "skyrg-plugin"]
 	path = skyrg-plugin
 	url = git@github.com:jerry-feng-skydio/SkyRG.git
+	branch = main

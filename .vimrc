@@ -80,7 +80,9 @@ Plugin 'sheerun/vim-polyglot'
 
 " SkyRG loaded via rtp from ~/.dotfiles/skyrg-plugin (submodule)
 
-Plugin 'github/copilot.vim'
+" Plugin 'github/copilot.vim'
+
+Plugin 'rishi-opensource/vim-claude-code'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -591,7 +593,7 @@ elseif s:host =~# 'work\|skydio\|corp'
   colorscheme gruvbox
   set background=dark
 else
-  colorscheme solarized
+  colorscheme base16-tomorrow-night
   set background=dark
 endif
 

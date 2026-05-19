@@ -39,9 +39,13 @@ echo "GCC:     $(gcc --version 2>/dev/null | head -1 || echo 'not found')"
 
 ####################################################################################################
 # Initialize submodules (e.g. SkyRG vim plugin)
+# Always pulls the latest commit from the tracked branch (set in .gitmodules).
+# To pin a specific commit instead (e.g. for a shared workstation):
+#   git submodule update --init --recursive   # (without --remote)
+#   cd skyrg-plugin && git checkout <commit> && cd .. && git add skyrg-plugin
 ####################################################################################################
 cd "$PARENT_PATH"
-git submodule update --init --recursive
+git submodule update --init --remote --recursive
 
 ####################################################################################################
 # Cache the default bashrc before overwriting
@@ -70,6 +74,9 @@ reset_link ".vimrc"
 reset_link ".tmux.conf"
 reset_link ".inputrc"
 reset_link ".gitconfig"
+
+# .vimrc references ~/.dotfiles/ for rtp plugins (skyrg-plugin, vim-lcm)
+ln -sfn "$PARENT_PATH" ~/.dotfiles
 
 # Set up convenience symlink to aircam (only if the target exists)
 if [ -d /home/skydio/aircam ]; then
@@ -185,6 +192,17 @@ mkdir -p ~/.vim/undodir
 
 # Call :PluginInstall from command line, then exit
 vim -c 'PluginInstall' -c 'qa!'
+
+####################################################################################################
+# Ensure coc.nvim is on the 'release' branch (ships pre-built build/index.js).
+# Vundle doesn't reliably honor {'branch': 'release'}, so we force it here.
+####################################################################################################
+if [ -d ~/.vim/bundle/coc.nvim ] && [ ! -f ~/.vim/bundle/coc.nvim/build/index.js ]; then
+    echo "Switching coc.nvim to release branch (pre-built)..."
+    cd ~/.vim/bundle/coc.nvim
+    git fetch origin release --depth 1
+    git checkout -B release origin/release
+fi
 
 ####################################################################################################
 # Finish installing YCM
