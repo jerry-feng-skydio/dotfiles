@@ -4,7 +4,7 @@
 let g:skyrg_context_key = '<Leader>a'
 
 " Logging
-" let g:skyrg_log_level = 'DEBUG'
+let g:skyrg_log_level = 'DEBUG'
 
 " Task viewer
 nnoremap <silent> <Leader>t :SkyRGTasks<CR>
