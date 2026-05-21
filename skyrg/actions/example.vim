@@ -50,6 +50,20 @@ call add(g:skyrg_context_actions, {
   \ },
   \ })
 
+call add(g:skyrg_context_actions, {
+  \ 'name':      'Example: interactive deploy',
+  \ 'key':       'i',
+  \ 'group':     'example',
+  \ 'priority':  202,
+  \ 'predicate': {ctx -> 1},
+  \ 'job':       '~/.dotfiles/scripts/skyrg_example_interactive.sh',
+  \ 'job_opts':  {
+  \   'title': 'Deploy',
+  \   'interactive': 1,
+  \   'term_rows': 10,
+  \ },
+  \ })
+
 function! s:jump_to_first(ctx) abort
   if empty(a:ctx.task_output)
     echom '[SkyRG] No errors to jump to'
