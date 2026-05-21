@@ -9,6 +9,9 @@ let g:skyrg_log_level = 'DEBUG'
 " Task viewer
 nnoremap <silent> <Leader>t :SkyRGTasks<CR>
 
+" Followup actions (most recent awaiting task)
+nnoremap <silent> <Leader>f :SkyRGFollowup<CR>
+
 " Statusline task indicator
 set statusline+=%{skyrg#backend#tasks#statusline()}
 
