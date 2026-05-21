@@ -308,94 +308,21 @@ set ttymouse=sgr
 set mouse=a
 
 " ==================================================================================================
-" FZF Configuration
+" SkyRG Configuration
 " ==================================================================================================
-" Default configurations
-let s:ac_types = ['py', 'cc', 'h', 'lcm', 'proto', 'djinni', 'mm', 'm', 'swift', 'java', 'kt', 'cmake', 'tsx', 'bazel']
-let s:ac_ignore_types = []
-
-" NOTE: All directory paths are relative.
-" Also, if search dirs is empty, rg will search where vim was executed.
-let s:ac_search_dirs = []
-let s:ac_ignore_dirs = [
-    \ 'build',
-    \ 'third_party_modules',
-    \ 'third_party',
-    \ 'bazel-out',
-    \ '**/node_modules',
-    \ ]
-
-" NOTE: Skyrg's filter class is not available until the plugins are loaded *after* the vimrc is
-" executed. Best way to set this up is to call this function on VimEnter, which happens "after  
-" all the startup stuff, executing the -c cmd arguments, creating all windows, and loading the
-" buffers in them."
-function! SetUpSkyrg()
-  let s:cwd = getcwd()
-  if (stridx(s:cwd, 'aircam') != -1)
-      echom "Setting RG filter to default to aircam!"
-
-      call g:SkyFilter.new("aircam")
-            \ .include_filetypes(s:ac_types)
-            \ .include_dirs(s:ac_search_dirs)
-            \ .ignore_filetypes(s:ac_ignore_types)
-            \ .ignore_dirs(s:ac_ignore_dirs)
-
-      call g:SkyFilter.new("ios")
-            \ .include_filetypes(['djinni', 'mm', 'm', 'swift'])
-            \ .include_dirs(['mobile'])
-            \ .ignore_filetypes(s:ac_ignore_types)
-            \ .ignore_dirs(s:ac_ignore_dirs)
-
-      call g:SkyFilter.new("android")
-            \ .include_filetypes(['djinni', 'java', 'kt'])
-            \ .include_dirs(['mobile'])
-            \ .ignore_filetypes(s:ac_ignore_types)
-            \ .ignore_dirs(s:ac_ignore_dirs)
-
-      call g:SkyFilter.new("mcore")
-            \ .include_filetypes(['djinni', 'cc', 'h'])
-            \ .include_dirs(['mobile/shared'])
-            \ .ignore_filetypes(s:ac_ignore_types)
-            \ .ignore_dirs(s:ac_ignore_dirs)
-
-      call g:SkyFilter.new("lcm")
-            \ .include_filetypes(['lcm', 'proto'])
-            \ .include_dirs(s:ac_search_dirs)
-            \ .ignore_filetypes(s:ac_ignore_types)
-            \ .ignore_dirs(s:ac_ignore_dirs)
-
-      call g:SkyFilter.new("bazel")
-            \ .include_filetypes(['bazel'])
-            \ .include_dirs(s:ac_search_dirs)
-            \ .ignore_filetypes(s:ac_ignore_types)
-            \ .ignore_dirs(s:ac_ignore_dirs)
-
-      call g:SkyFilter.new("gen")
-            \ .include_filetypes(['py', 'cc', 'h'])
-            \ .include_dirs(['build'])
-            \ .ignore_filetypes(s:ac_ignore_types)
-            \ .ignore_dirs([])
-
-      call g:SkyFilter.new("web")
-            \ .include_filetypes(s:ac_types)
-            \ .include_dirs(s:ac_search_dirs)
-            \ .ignore_filetypes(s:ac_ignore_types)
-            \ .ignore_dirs(s:ac_ignore_dirs)
-
-      call g:SkyFilter.new("none")
-            \ .include_filetypes([])
-            \ .include_dirs([])
-            \ .ignore_filetypes([])
-            \ .ignore_dirs([])
-
-      let g:SkyFilter.default = 'aircam'
-  endif
-endfunction
-
-augroup create_skyrg_filters 
-  autocmd!
-  autocmd VimEnter * call SetUpSkyrg() 
-augroup end
+" Config is split into ~/.dotfiles/skyrg/:
+"   global.vim          — shared settings (context key, statusline, log level)
+"   actions/*.vim       — context popup actions (one file per group)
+"   projects/*.vim      — project-specific filter presets (guarded on cwd)
+for s:f in glob('~/.dotfiles/skyrg/*.vim', 0, 1)
+  execute 'source' s:f
+endfor
+for s:f in glob('~/.dotfiles/skyrg/actions/*.vim', 0, 1)
+  execute 'source' s:f
+endfor
+for s:f in glob('~/.dotfiles/skyrg/projects/*.vim', 0, 1)
+  execute 'source' s:f
+endfor
 
 command! -nargs=* -bang -complete=customlist,skyrg#complete#rg RG call skyrg#search(<f-args>)
 command! -nargs=* -bang RGN call skyrg#search('--', <f-args>)
