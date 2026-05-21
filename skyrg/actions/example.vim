@@ -42,9 +42,9 @@ call add(g:skyrg_context_actions, {
   \   'output_format': 'lines',
   \   'on_success': [
   \     {
-  \       'name': 'Show output',
+  \       'name': 'Show output in split',
   \       'key':  's',
-  \       'execute': {ctx -> execute('echom "[SkyRG] Got ' . '" . len(ctx.task_output) . " lines"')},
+  \       'execute': {ctx -> s:show_in_scratch(ctx.task_output)},
   \     },
   \   ],
   \ },
@@ -63,6 +63,14 @@ call add(g:skyrg_context_actions, {
   \   'term_rows': 10,
   \ },
   \ })
+
+function! s:show_in_scratch(lines) abort
+  new
+  setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
+  file [SkyRG\ Output]
+  call setline(1, a:lines)
+  setlocal nomodifiable
+endfunction
 
 function! s:jump_to_first(ctx) abort
   if empty(a:ctx.task_output)
