@@ -29,6 +29,27 @@ call add(g:skyrg_context_actions, {
   \ },
   \ })
 
+call add(g:skyrg_context_actions, {
+  \ 'name':      'Example: pipe selection',
+  \ 'key':       'p',
+  \ 'group':     'example',
+  \ 'priority':  201,
+  \ 'predicate': {ctx -> !empty(ctx.visual)},
+  \ 'job':       '~/.dotfiles/scripts/skyrg_example_stdin.sh',
+  \ 'job_opts':  {
+  \   'title': 'Pipe stdin',
+  \   'stdin': {ctx -> ctx.visual},
+  \   'output_format': 'lines',
+  \   'on_success': [
+  \     {
+  \       'name': 'Show output',
+  \       'key':  's',
+  \       'execute': {ctx -> execute('echom "[SkyRG] Got ' . '" . len(ctx.task_output) . " lines"')},
+  \     },
+  \   ],
+  \ },
+  \ })
+
 function! s:jump_to_first(ctx) abort
   if empty(a:ctx.task_output)
     echom '[SkyRG] No errors to jump to'
