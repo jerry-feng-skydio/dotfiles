@@ -75,6 +75,10 @@ reset_link ".tmux.conf"
 reset_link ".inputrc"
 reset_link ".gitconfig"
 
+# Windsurf (IDE) agent rules
+mkdir -p ~/.windsurf
+ln -sf "${PARENT_PATH}/windsurf-rules" ~/.windsurf/rules
+
 # Set up convenience symlink to aircam (only if the target exists)
 if [ -d /home/skydio/aircam ]; then
     ln -sf /home/skydio/aircam ~/aircam

@@ -170,8 +170,8 @@ alias revupa="./skyrun bin revup amend"
 alias revupr="./skyrun bin revup restack"
 
 
-alias coder="ssh main.jfeng-claude.jerry-feng.coder"
-alias coder_aosp="ssh main.jfeng-aosp.jerry-feng.coder"
+# alias coder="ssh main.jfeng-claude.jerry-feng.coder"
+# alias coder_aosp="ssh main.jfeng-aosp.jerry-feng.coder"
 alias jroot="cd ~/.dotfiles"
 alias gitjf="git -C ~/.dotfiles/"
 alias vimjf="vim ~/.dotfiles"
