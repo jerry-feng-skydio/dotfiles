@@ -27,17 +27,17 @@ link_plan() {
     return
   fi
 
-  # Symlink CLAUDE.md into the repo root
-  ln -sfn "$context_file" "$repo/CLAUDE.md"
+  # Symlink CLAUDE.local.md into the repo root (layers on top of any shared CLAUDE.md)
+  ln -sfn "$context_file" "$repo/CLAUDE.local.md"
 
   # Add to local gitignore (never touches shared .gitignore)
   local exclude="$repo/.git/info/exclude"
   mkdir -p "$(dirname "$exclude")"
-  if ! grep -qxF 'CLAUDE.md' "$exclude" 2>/dev/null; then
-    echo 'CLAUDE.md' >> "$exclude"
+  if ! grep -qxF 'CLAUDE.local.md' "$exclude" 2>/dev/null; then
+    echo 'CLAUDE.local.md' >> "$exclude"
   fi
 
-  echo "  OK   $(basename "$repo") → CLAUDE.md linked"
+  echo "  OK   $(basename "$repo") → CLAUDE.local.md linked"
 }
 
 echo "Linking agent context into work repos..."

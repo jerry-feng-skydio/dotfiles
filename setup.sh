@@ -84,6 +84,14 @@ if [ -d /home/skydio/aircam ]; then
     ln -sf /home/skydio/aircam ~/aircam
 fi
 
+####################################################################################################
+# Link AI agent context into work repos
+####################################################################################################
+if [ -f "${PARENT_PATH}/plans/setup.sh" ]; then
+  echo "Linking agent context files..."
+  bash "${PARENT_PATH}/plans/setup.sh"
+fi
+
 if [ "$soft_reset" = "true" ]; then
     echo "Soft reset complete — dotfiles re-linked."
     exit 0
