@@ -1,0 +1,1 @@
+../.ai/CONVENTIONS.md
