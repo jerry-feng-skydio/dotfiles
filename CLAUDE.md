@@ -4,13 +4,14 @@ Personal development environment configuration for Jerry Feng.
 
 ## Quick Reference
 
-- **Architecture**: see `.ai/ARCHITECTURE.md`
-- **Agent conventions**: see `.ai/CONVENTIONS.md`
-- **In-flight work**: see `plans/dotfiles/PROGRESS.md`
+- **Architecture**: see `agentic-coding/ARCHITECTURE.md`
+- **Agent conventions**: see `agentic-coding/CONVENTIONS.md`
+- **Agent rules (Windsurf)**: see `agentic-coding/rules/`
+- **In-flight work**: see `agentic-coding/context/dotfiles/PROGRESS.md`
+- **How agent config works**: see `agentic-coding/README.md`
 
 ## Key Paths
 
 - `skyrg-plugin/` — SkyRG Vim plugin (submodule)
 - `setup.sh` — machine bootstrap script
-- `plans/` — portable AI agent plans for all projects
-- `.ai/` — agent conventions and architecture docs
+- `agentic-coding/` — all AI agent rules, conventions, and project context

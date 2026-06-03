@@ -1,1 +1,0 @@
-../.ai/git-non-interactive.md

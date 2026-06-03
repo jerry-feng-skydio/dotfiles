@@ -142,7 +142,7 @@ ln -sf "${PARENT_PATH}/coc-settings.json" ~/.vim/coc-settings.json
 
 # Windsurf (IDE) agent rules
 mkdir -p ~/.windsurf
-ln -sfn "${PARENT_PATH}/windsurf-rules" ~/.windsurf/rules
+ln -sfn "${PARENT_PATH}/agentic-coding/rules" ~/.windsurf/rules
 
 # Set up convenience symlink to aircam (only if the target exists)
 if [ -d /home/skydio/aircam ]; then
@@ -152,9 +152,9 @@ fi
 ####################################################################################################
 # Link AI agent context into work repos
 ####################################################################################################
-if [ -f "${PARENT_PATH}/plans/setup.sh" ]; then
+if [ -f "${PARENT_PATH}/agentic-coding/context/setup.sh" ]; then
   echo "Linking agent context files..."
-  bash "${PARENT_PATH}/plans/setup.sh"
+  bash "${PARENT_PATH}/agentic-coding/context/setup.sh"
 fi
 
 if [ "$soft_reset" = "true" ]; then

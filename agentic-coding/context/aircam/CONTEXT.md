@@ -38,5 +38,5 @@ Do NOT commit until both pass cleanly. If either reports errors, fix them and re
 ## Agent Notes
 
 - This is a **shared repo** — do not commit agent plans, `CLAUDE.md`, or `.ai/` files
-- `CLAUDE.md` is symlinked from `~/dotfiles/plans/aircam/CONTEXT.md` and excluded via `.git/info/exclude`
-- In-flight work tracked in `~/dotfiles/plans/aircam/PROGRESS.md`
+- `CLAUDE.local.md` is symlinked from `~/dotfiles/agentic-coding/context/aircam/CONTEXT.md` and excluded via `.git/info/exclude`
+- In-flight work tracked in `~/dotfiles/agentic-coding/context/aircam/PROGRESS.md`

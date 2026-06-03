@@ -1,14 +1,14 @@
 #!/bin/bash
-# plans/setup.sh — Link agent context files into work repos
+# agentic-coding/context/setup.sh — Link agent context files into work repos
 #
 # Run this once per machine after cloning dotfiles.
-# Creates CLAUDE.md symlinks and adds them to each repo's local gitignore.
+# Creates CLAUDE.local.md symlinks and adds them to each repo's local gitignore.
 #
-# Usage: bash ~/dotfiles/plans/setup.sh
+# Usage: bash ~/dotfiles/agentic-coding/context/setup.sh
 
 set -euo pipefail
 
-PLANS_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONTEXT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 link_plan() {
   local repo="$1"
@@ -44,8 +44,8 @@ echo "Linking agent context into work repos..."
 echo ""
 
 # ── Add your repos here ──────────────────────────────────────────────────────
-link_plan "$HOME/aircam"    "$PLANS_DIR/aircam/CONTEXT.md"
-# link_plan "$HOME/other-repo"  "$PLANS_DIR/other-repo/CONTEXT.md"
+link_plan "$HOME/aircam"    "$CONTEXT_DIR/aircam/CONTEXT.md"
+# link_plan "$HOME/other-repo"  "$CONTEXT_DIR/other-repo/CONTEXT.md"
 # ─────────────────────────────────────────────────────────────────────────────
 
 echo ""

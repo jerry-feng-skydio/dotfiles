@@ -1,5 +1,5 @@
 ---
-trigger: always
+trigger: always_on
 ---
 
 # Git: Non-Interactive Usage

@@ -14,9 +14,12 @@ dotfiles/
 ├── vim-lcm/            # LCM syntax highlighting plugin
 ├── skyrg.vim           # Legacy standalone SkyRG (pre-plugin version)
 ├── scripts/            # Utility scripts
-├── plans/              # Portable AI agent plans (per-project)
-├── .windsurf/rules/    # Windsurf rules (one .md per rule, with frontmatter)
-└── .ai/                # Agent conventions, architecture, and README
+├── CLAUDE.md           # Claude Code entry point → points to agentic-coding/
+└── agentic-coding/     # All AI agent rules, conventions, and project context
+    ├── rules/          # Windsurf rules (symlinked to ~/.windsurf/rules)
+    ├── context/        # Per-project context (CONTEXT.md, PROGRESS.md)
+    ├── ARCHITECTURE.md # This file
+    └── CONVENTIONS.md  # Full conventions reference
 ```
 
 ## Setup Flow
@@ -24,8 +27,9 @@ dotfiles/
 `setup.sh` bootstraps a new machine:
 1. Parses flags (`-s` for soft reset, skips installs)
 2. Symlinks dotfiles into `$HOME`
-3. Installs Vundle plugins, fzf, vim, tmux, etc.
-4. Runs `plans/setup.sh` to link agent context into work repos
+3. Symlinks `agentic-coding/rules/` to `~/.windsurf/rules/`
+4. Installs Vundle plugins, fzf, vim, tmux, etc.
+5. Runs `agentic-coding/context/setup.sh` to link agent context into work repos
 
 ## SkyRG Plugin (`skyrg-plugin/`)
 
@@ -42,9 +46,9 @@ Managed as a git submodule. Loaded into Vim via runtimepath in `.vimrc`.
 - Context popup via `g:skyrg_context_key` mapping
 - `:RevupTopics` — revup topic chain viewer (gitcommit context action)
 
-## Plans System (`plans/`)
+## Context System (`agentic-coding/context/`)
 
 Portable AI agent context for cross-machine, cross-tool work.
-- `plans/<project>/CONTEXT.md` — architecture, conventions for that project
-- `plans/<project>/PROGRESS.md` — in-flight work state
-- `plans/setup.sh` — symlinks `CONTEXT.md` as `CLAUDE.md` into each work repo
+- `context/<project>/CONTEXT.md` — architecture, conventions for that project
+- `context/<project>/PROGRESS.md` — in-flight work state
+- `context/setup.sh` — symlinks `CONTEXT.md` as `CLAUDE.local.md` into each work repo
