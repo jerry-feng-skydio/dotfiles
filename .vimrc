@@ -555,6 +555,7 @@ augroup end
 " TODO: Why isn't my python syntax highlighting working...?
 " ==================================================================================================
 let g:airline_powerline_fonts = 1
+let g:airline_section_x = '%{skyrg#backend#tasks#statusline()}'
 let g:airline_section_y = '%{skyrg#backend#device#statusline()}'
 
 " Enable terminal gui colors for wider color selection options
