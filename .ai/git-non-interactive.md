@@ -1,3 +1,7 @@
+---
+trigger: always
+---
+
 # Git: Non-Interactive Usage
 
 When using git from `run_command`, you MUST avoid any command that opens an interactive editor. The agent's terminal cannot interact with editors like vim.

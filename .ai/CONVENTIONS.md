@@ -1,3 +1,7 @@
+---
+trigger: always
+---
+
 # Agent Conventions
 
 Rules and conventions for AI coding agents working in this environment.

@@ -14,6 +14,9 @@ personal=false
 do_vim=false
 do_claude=false
 any_component=false
+do_plugins=false
+do_ycm=false
+do_coc=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -22,7 +25,10 @@ while [[ $# -gt 0 ]]; do
       echo ""
       echo "Options:"
       echo "  --soft       Soft reset: only re-link dotfiles, skip installs"
-      echo "  --vim        Only run vim build + plugin install"
+      echo "  --vim        Only run vim build + plugin install (implies --plugins --ycm --coc)"
+      echo "  --plugins    Only run vim :PluginInstall/:PluginUpdate"
+      echo "  --ycm        Only rebuild YouCompleteMe"
+      echo "  --coc        Only fix/rebuild coc.nvim (switch to release branch + npm ci)"
       echo "  --claude     Only run Claude Code install/config"
       echo "  --all        Run everything (default when no component flags given)"
       echo "  --personal   Skip Skydio-specific steps (AWS SSO, Bedrock config)"
@@ -37,6 +43,18 @@ while [[ $# -gt 0 ]]; do
       ;;
     --vim)
       do_vim=true
+      any_component=true
+      ;;
+    --plugins)
+      do_plugins=true
+      any_component=true
+      ;;
+    --ycm)
+      do_ycm=true
+      any_component=true
+      ;;
+    --coc)
+      do_coc=true
       any_component=true
       ;;
     --claude)
@@ -63,6 +81,13 @@ done
 if [ "$any_component" = false ] && [ "$soft_reset" = false ]; then
     do_vim=true
     do_claude=true
+fi
+
+# --vim implies all vim sub-components
+if [ "$do_vim" = true ]; then
+    do_plugins=true
+    do_ycm=true
+    do_coc=true
 fi
 
 ####################################################################################################
@@ -230,6 +255,9 @@ if [ "$need_vim_build" = true ]; then
     sudo update-alternatives --set vi /usr/local/bin/vim
 fi
 
+fi # do_vim
+
+if [ "$do_plugins" = true ]; then
 ####################################################################################################
 # Install Vundle, install plugins
 ####################################################################################################
@@ -243,6 +271,9 @@ mkdir -p ~/.vim/undodir
 # Call :PluginInstall from command line, then exit
 vim -c 'PluginInstall' -c 'qa!'
 
+fi # do_plugins
+
+if [ "$do_coc" = true ]; then
 ####################################################################################################
 # Ensure coc.nvim is on the 'release' branch (ships pre-built build/index.js).
 # Vundle doesn't reliably honor {'branch': 'release'}, so we force it here.
@@ -251,8 +282,8 @@ if [ -d ~/.vim/bundle/coc.nvim ]; then
     cd ~/.vim/bundle/coc.nvim
     if [ "$(git rev-parse --abbrev-ref HEAD)" != "release" ]; then
         echo "Switching coc.nvim to release branch (pre-built)..."
-        git fetch origin release --depth 1
-        git checkout -B release origin/release
+        git fetch origin release
+        git checkout -B release FETCH_HEAD
     fi
     # Fallback: build from source if build/index.js is still missing
     if [ ! -f build/index.js ]; then
@@ -261,6 +292,9 @@ if [ -d ~/.vim/bundle/coc.nvim ]; then
     fi
 fi
 
+fi # do_coc
+
+if [ "$do_ycm" = true ]; then
 ####################################################################################################
 # Finish installing YCM
 ####################################################################################################
@@ -305,6 +339,9 @@ if [ "$need_ycm_build" = true ]; then
     python3 install.py --all --verbose
 fi
 
+fi # do_ycm
+
+if [ "$do_vim" = true ]; then
 ####################################################################################################
 # Verify
 ####################################################################################################
@@ -319,7 +356,6 @@ if vim --version | grep -q '+python3'; then
 else
     echo "WARNING: Vim does NOT have python3 support"
 fi
-
 fi # do_vim
 
 if [ "$do_claude" = true ]; then
