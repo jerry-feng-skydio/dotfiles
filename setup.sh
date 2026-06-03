@@ -120,6 +120,9 @@ sudo apt-get install -y fzf
 # Install powerline
 sudo apt-get install -y powerline
 
+# Install nodejs/npm early (needed for coc.nvim fallback build)
+sudo apt-get install -y nodejs npm
+
 ####################################################################################################
 # Re-install vim with python 3
 ####################################################################################################
@@ -206,11 +209,18 @@ vim -c 'PluginInstall' -c 'qa!'
 # Ensure coc.nvim is on the 'release' branch (ships pre-built build/index.js).
 # Vundle doesn't reliably honor {'branch': 'release'}, so we force it here.
 ####################################################################################################
-if [ -d ~/.vim/bundle/coc.nvim ] && [ ! -f ~/.vim/bundle/coc.nvim/build/index.js ]; then
-    echo "Switching coc.nvim to release branch (pre-built)..."
+if [ -d ~/.vim/bundle/coc.nvim ]; then
     cd ~/.vim/bundle/coc.nvim
-    git fetch origin release --depth 1
-    git checkout -B release origin/release
+    if [ "$(git rev-parse --abbrev-ref HEAD)" != "release" ]; then
+        echo "Switching coc.nvim to release branch (pre-built)..."
+        git fetch origin release --depth 1
+        git checkout -B release origin/release
+    fi
+    # Fallback: build from source if build/index.js is still missing
+    if [ ! -f build/index.js ]; then
+        echo "coc.nvim build/index.js missing, building with npm ci..."
+        npm ci
+    fi
 fi
 
 ####################################################################################################
