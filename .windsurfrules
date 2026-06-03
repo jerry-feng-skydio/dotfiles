@@ -1,0 +1,19 @@
+# Revup commit message labels
+#
+# This project uses Skydio's revup (https://github.com/Skydio/revup) for
+# managing stacked pull requests. Revup stores metadata as trailer-style
+# labels in commit messages.
+#
+# When editing or amending commit messages, NEVER remove, rename, or reorder
+# the following revup labels:
+#
+#   Topic:      — maps the commit to a pull request (required)
+#   Relative:   — declares a dependency on another topic
+#   Reviewers:  — GitHub usernames or org/team slugs
+#   Assignees:  — GitHub usernames
+#   Labels:     — GitHub PR labels (e.g. bug, feature, draft)
+#   Branches:   — target branch(es) for the PR
+#
+# These labels typically appear at the end of the commit message body,
+# each on its own line. Treat them as structured metadata — preserve them
+# exactly as-is, including casing and comma-separated values.
