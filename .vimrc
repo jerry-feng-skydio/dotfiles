@@ -197,7 +197,7 @@ nnoremap <leader><bar> :vsp<cr>
 " Function Keys ---------------------------------------------------------------
 if g:completion_engine ==# 'coc'
   nnoremap <silent> <F1> :call CocActionAsync('doHover')<cr>
-  nmap <silent> <F2> <Plug>(coc-type-definition)
+  nmap <silent> <F2> <Plug>(coc-declaration)
   nmap <silent> <F3> <Plug>(coc-definition)
   nnoremap <silent> <F4> :<C-u>CocList symbols<cr>
   nnoremap <silent> <F5> :CocRestart<cr>
