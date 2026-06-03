@@ -1,0 +1,15 @@
+{
+  "suggest.noselect": false,
+
+  "diagnostic.virtualText": true,
+  "diagnostic.virtualTextCurrentLineOnly": true,
+
+  "clangd.arguments": [
+    "--background-index",
+    "--clang-tidy",
+    "--completion-style=detailed",
+    "--header-insertion=iwyu"
+  ],
+
+  "pyright.organizeimports.provider": "ruff"
+}

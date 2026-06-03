@@ -136,6 +136,10 @@ reset_link ".tmux.conf"
 reset_link ".inputrc"
 reset_link ".gitconfig"
 
+# CoC (LSP) settings — lives at ~/.vim/coc-settings.json
+mkdir -p ~/.vim
+ln -sf "${PARENT_PATH}/coc-settings.json" ~/.vim/coc-settings.json
+
 # Windsurf (IDE) agent rules
 mkdir -p ~/.windsurf
 ln -sfn "${PARENT_PATH}/windsurf-rules" ~/.windsurf/rules
@@ -291,6 +295,15 @@ if [ -d ~/.vim/bundle/coc.nvim ]; then
         echo "coc.nvim build/index.js missing, building with npm ci..."
         npm ci
     fi
+fi
+
+# Install clangd if missing (coc-clangd needs it; coc-pyright and coc-go manage their own servers)
+if ! command -v clangd &>/dev/null; then
+    echo "Installing clangd..."
+    sudo apt-get install -y clangd 2>/dev/null \
+        || sudo apt-get install -y clangd-14 2>/dev/null \
+        || sudo apt-get install -y clangd-12 2>/dev/null \
+        || echo "WARNING: could not install clangd, install manually for C++ LSP support"
 fi
 
 fi # do_coc

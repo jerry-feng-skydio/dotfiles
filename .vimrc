@@ -360,11 +360,18 @@ endif
 " CoC (LSP) Configuration
 " ==================================================================================================
 if g:completion_engine ==# 'coc'
+" Auto-install language server extensions on startup
+let g:coc_global_extensions = ['coc-clangd', 'coc-pyright', 'coc-go']
+
 " Navigation
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+
+" Diagnostics navigation
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
 " Show documentation in preview window
 nnoremap <silent> K :call CocActionAsync('doHover')<cr>
