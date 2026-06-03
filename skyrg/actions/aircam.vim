@@ -18,6 +18,8 @@ call add(g:skyrg_context_actions, {
   \ 'job_opts':  {
   \   'title': 'CompileCommands',
   \   'cwd': {ctx -> s:aircam_root(ctx)},
+  \   'monitor': 1,
+  \   'monitor_on_success': 'close',
   \   'on_success': [
   \     {
   \       'name': 'Restart CoC',
