@@ -519,6 +519,8 @@ function! s:SessionFile() abort
 endfunction
 
 function! s:SaveSession() abort
+  " Close live splits — they have no meaningful state to restore
+  silent! call skyrg#ui#live_split#close_all()
   let l:bufs = filter(range(1, bufnr('$')), 'buflisted(v:val) && !empty(bufname(v:val))')
   if empty(l:bufs) | return | endif
   " Unlist transient buffers before saving: anything outside cwd or with
