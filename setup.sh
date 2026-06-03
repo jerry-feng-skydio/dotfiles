@@ -180,8 +180,15 @@ if ! command -v rg &> /dev/null; then
     rm -f /tmp/ripgrep.deb
 fi
 
-# Install FZF
-sudo apt-get install -y fzf
+# Install FZF — pinned version via git (apt versions vary across distros)
+FZF_VERSION="v0.46.1"
+if [ ! -d ~/.fzf ]; then
+    git clone --depth 1 --branch "$FZF_VERSION" https://github.com/junegunn/fzf.git ~/.fzf
+else
+    git -C ~/.fzf fetch --depth 1 origin tag "$FZF_VERSION"
+    git -C ~/.fzf checkout "$FZF_VERSION"
+fi
+~/.fzf/install --all --no-update-rc
 
 # Install powerline
 sudo apt-get install -y powerline
