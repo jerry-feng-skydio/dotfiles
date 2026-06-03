@@ -181,6 +181,10 @@ if ! command -v rg &> /dev/null; then
 fi
 
 # Install FZF — pinned version via git (apt versions vary across distros)
+# Remove apt fzf if present to avoid PATH shadowing
+if dpkg -l fzf &>/dev/null; then
+    sudo apt-get remove -y fzf
+fi
 FZF_VERSION="v0.46.1"
 if [ ! -d ~/.fzf ]; then
     git clone --depth 1 --branch "$FZF_VERSION" https://github.com/junegunn/fzf.git ~/.fzf
