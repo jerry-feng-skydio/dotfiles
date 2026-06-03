@@ -1,4 +1,28 @@
 #!/bin/bash
+# setup.sh — Bootstrap a development machine
+#
+# FLAGS (composable — multiple can be combined):
+#   --soft       Re-link dotfiles only, skip all installs. Exits early.
+#   --vim        Build Vim from source + install plugins (implies --plugins --coc)
+#   --plugins    Only run Vim :PluginInstall/:PluginUpdate
+#   --ycm        Only rebuild YouCompleteMe
+#   --coc        Only fix/rebuild coc.nvim
+#   --claude     Only install Claude Code CLI + configure Bedrock
+#   --all        Run everything (default when no component flags given)
+#   --personal   Skip Skydio-specific steps (AWS SSO, Bedrock config)
+#
+# EXECUTION ORDER:
+#   1. Symlink dotfiles (.bashrc, .vimrc, .tmux.conf, .gitconfig, etc.)
+#   2. Symlink agentic-coding/rules → ~/.windsurf/rules
+#   3. Link agent context into work repos (agentic-coding/context/setup.sh)
+#   4. [--vim] Install packages, build Vim, install plugins, build YCM, fix CoC
+#   5. [--claude] Install Claude Code CLI, configure Bedrock + AWS SSO
+#
+# NOTES:
+#   - Steps 1-3 always run (even with component flags).
+#   - --soft exits after step 3.
+#   - No flags = --all (runs everything).
+
 set -euo pipefail
 
 # Log everything for debugging on ephemeral machines

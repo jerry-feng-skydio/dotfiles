@@ -35,6 +35,20 @@ Before committing any changes, you MUST run these checks and fix any issues:
 
 Do NOT commit until both pass cleanly. If either reports errors, fix them and re-run before committing.
 
+## Skydio Devices
+
+Skydio drones have multiple onboard compute boards accessible via SSH (aliases in `~/.ssh/config`).
+
+| Vehicle | Type | Boards | SSH hosts | Log mechanism |
+|---------|------|--------|-----------|---------------|
+| R47 | Drone | NVU (main), QCU (camera) | `nvu`, `qcu`, `nvu-wifi`, `qcu-wifi` | `ssh <host> tail -f <logfile>` |
+| C38 | Remote controller | SOC (main), Radio | `c38`, `c38-radio` | `ssh c38 logcat \| grep ucon` |
+
+- **R47 logs** live at `/home/skydio/semi_persistent/process_logs/latest/<process>/` on each board
+- **C38 logs** use Android `logcat` (the SOC runs Android)
+- Device detection works by probing SSH hosts with `ConnectTimeout=2`
+- Boards can be connected via USB-Ethernet or WiFi (the `-wifi` variants)
+
 ## Agent Notes
 
 - This is a **shared repo** — do not commit agent plans, `CLAUDE.md`, or `.ai/` files
