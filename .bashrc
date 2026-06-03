@@ -72,7 +72,7 @@ toggle_skymux_git() {
 #cd /home/skydio/
 
 skymux() {
-    ~/.dotfiles/skymux.sh
+    ~/.dotfiles/scripts/tmux/skymux.sh
 }
 
 # This sets aircam root and adds the aircam binaries path to our path.
@@ -146,17 +146,13 @@ EOF
 
 
 alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
-alias studio="~/android-studio/bin/studio.sh"
-alias adb_wifi='bazel run //tools/dev_tools:c18_adb_phone -- wifi'
-alias fast_android_build="~/.dotfiles/fast_android_build.sh"
-alias skymux="~/.dotfiles/skymux.sh"
-alias skyvpn="~/.dotfiles/skyvpn.sh"
-alias watch_flight_deck="~/.dotfiles/watch_vehicle_flight_deck.sh"
-alias grep_flight_deck="~/.dotfiles/grep_flight_deck.sh"
-alias lazy_ota="~/.dotfiles/lazy_ota.sh"
+alias skymux="~/.dotfiles/scripts/tmux/skymux.sh"
+alias watch_flight_deck="~/.dotfiles/scripts/skydio/watch_vehicle_flight_deck.sh"
+alias grep_flight_deck="~/.dotfiles/scripts/skydio/grep_flight_deck.sh"
+alias lazy_ota="~/.dotfiles/scripts/skydio/lazy_ota.sh"
 alias jerry_first_time_setup="~/.dotfiles/setup.sh"
 alias oopsies='git add . && git commit --amend --no-edit && git push --force'
-alias order='python3 ~/.dotfiles/ordered_grep.py'
+alias order='python3 ~/.dotfiles/scripts/util/ordered_grep.py'
 alias decrypt="./skyrun bin decrypt_debug_logs_tar"
 
 alias gdf='cd ~/.dotfiles'
