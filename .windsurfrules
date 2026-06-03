@@ -1,9 +1,0 @@
-# Windsurf / AI Agent Rules
-#
-# All agent rules and project context live in .ai/:
-#   .ai/ARCHITECTURE.md  — repo structure, setup flow, plugin layers
-#   .ai/CONVENTIONS.md   — code style, git rules, revup labels, checkpointing
-#   .ai/git-non-interactive.md — how to use git without opening editors
-#
-# Read .ai/CONVENTIONS.md before making any git commits or editing commit
-# messages. It contains critical rules about preserving revup labels.

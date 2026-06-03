@@ -8,7 +8,7 @@ when working in this repository.
 
 | File | Who reads it | Purpose |
 |------|-------------|---------|
-| `.windsurfrules` | Windsurf/Cascade | Entry point — points agents to `.ai/` |
+| `.windsurf/rules/*.md` | Windsurf/Cascade | Per-rule files with activation frontmatter |
 | `.ai/ARCHITECTURE.md` | All agents | Repo structure, setup flow, plugin layers |
 | `.ai/CONVENTIONS.md` | All agents | Code style, git rules, revup labels, checkpointing |
 | `.ai/git-non-interactive.md` | All agents | How to use git without opening editors |
@@ -17,16 +17,26 @@ when working in this repository.
 
 ## How agents discover these files
 
-- **Windsurf**: reads `.windsurfrules` at workspace root automatically.
-  Files in `.ai/` with `trigger: always` frontmatter are loaded on every conversation.
+- **Windsurf/Cascade**: reads `.windsurf/rules/*.md` files. Each file has YAML
+  frontmatter with a `trigger:` field controlling when it activates:
+  - `always_on` — included in every conversation
+  - `model_decision` — description shown always, full content loaded on demand
+  - `glob` — activated when matching files are read/edited (e.g. `globs: **/*.py`)
+  - `manual` — only when user types `@rule-name`
+  Windsurf also reads `AGENTS.md` files (root = always on, subdirectory = scoped).
 - **Claude Code**: reads `CLAUDE.md` at repo root (symlinked from `plans/<project>/CONTEXT.md` by `plans/setup.sh`).
 - **Cursor**: reads `.cursorrules` if present (not currently used here).
 - **General**: any agent that scans for markdown in `.ai/` or reads `ARCHITECTURE.md` / `CONVENTIONS.md`.
 
+Note: `.windsurfrules` (single file at root) is a legacy format. We use
+`.windsurf/rules/` (one file per rule) instead.
+
 ## Adding new rules
 
-1. Add a markdown file to `.ai/`.
-2. Use `trigger: always` frontmatter if the rule should apply to every conversation.
+1. For Windsurf rules: add a `.md` file to `.windsurf/rules/` with appropriate
+   `trigger:` frontmatter (`always_on`, `model_decision`, `glob`, or `manual`).
+2. For cross-agent rules: add to `.ai/CONVENTIONS.md` or create a new `.ai/*.md`
+   file with `trigger: always` frontmatter.
 3. Keep rules concise and imperative — agents work best with clear "do/don't" instructions.
 4. Update `ARCHITECTURE.md` if repo structure changes.
 5. Update `CONVENTIONS.md` for new code style or workflow rules.

@@ -15,7 +15,7 @@ dotfiles/
 ├── skyrg.vim           # Legacy standalone SkyRG (pre-plugin version)
 ├── scripts/            # Utility scripts
 ├── plans/              # Portable AI agent plans (per-project)
-├── .windsurfrules      # Windsurf entry point → points to .ai/
+├── .windsurf/rules/    # Windsurf rules (one .md per rule, with frontmatter)
 └── .ai/                # Agent conventions, architecture, and README
 ```
 
