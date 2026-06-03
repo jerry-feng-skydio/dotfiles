@@ -521,6 +521,17 @@ endfunction
 function! s:SaveSession() abort
   let l:bufs = filter(range(1, bufnr('$')), 'buflisted(v:val) && !empty(bufname(v:val))')
   if empty(l:bufs) | return | endif
+  " Unlist transient buffers before saving: anything outside cwd or with
+  " a special buftype (nofile, help, terminal, quickfix, task logs, etc.)
+  let l:cwd = getcwd() . '/'
+  for l:b in l:bufs
+    let l:path = fnamemodify(bufname(l:b), ':p')
+    if getbufvar(l:b, '&buftype') !=# '' || stridx(l:path, l:cwd) != 0
+      call setbufvar(l:b, '&buflisted', 0)
+    endif
+  endfor
+  let l:remaining = filter(range(1, bufnr('$')), 'buflisted(v:val) && !empty(bufname(v:val))')
+  if empty(l:remaining) | return | endif
   execute 'mksession! ' . fnameescape(s:SessionFile())
 endfunction
 
