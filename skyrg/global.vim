@@ -19,3 +19,6 @@ set statusline+=%{skyrg#backend#tasks#statusline()}
 if !exists('g:skyrg_context_actions')
   let g:skyrg_context_actions = []
 endif
+
+" Auto-detect devices on USB plug/unplug
+call skyrg#backend#device#watch_usb()
