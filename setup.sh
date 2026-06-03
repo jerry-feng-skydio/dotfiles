@@ -10,23 +10,60 @@ echo "Setup log: $SETUP_LOG"
 # Parse flags
 ####################################################################################################
 soft_reset=false
+personal=false
+do_vim=false
+do_claude=false
+any_component=false
 
-while getopts ":hs" opt; do
-  case ${opt} in
-    h )
-      echo "Usage: $0 [-h] [-s]"
-      echo "  -s  Soft reset: only re-link dotfiles, skip installs"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      echo "Usage: $0 [OPTIONS]"
+      echo ""
+      echo "Options:"
+      echo "  --soft       Soft reset: only re-link dotfiles, skip installs"
+      echo "  --vim        Only run vim build + plugin install"
+      echo "  --claude     Only run Claude Code install/config"
+      echo "  --all        Run everything (default when no component flags given)"
+      echo "  --personal   Skip Skydio-specific steps (AWS SSO, Bedrock config)"
+      echo "  -h, --help   Show this help"
+      echo ""
+      echo "Component flags compose: --claude --vim runs both."
+      echo "No component flags = --all."
       exit 0
       ;;
-    s )
+    -s|--soft)
       soft_reset=true
       ;;
-    \? )
-      echo "Invalid option: -$OPTARG" 1>&2
+    --vim)
+      do_vim=true
+      any_component=true
+      ;;
+    --claude)
+      do_claude=true
+      any_component=true
+      ;;
+    --all)
+      do_vim=true
+      do_claude=true
+      any_component=true
+      ;;
+    --personal)
+      personal=true
+      ;;
+    *)
+      echo "Unknown option: $1" 1>&2
       exit 1
       ;;
   esac
+  shift
 done
+
+# No component flags = run everything
+if [ "$any_component" = false ] && [ "$soft_reset" = false ]; then
+    do_vim=true
+    do_claude=true
+fi
 
 ####################################################################################################
 # Resolve script directory
@@ -97,6 +134,7 @@ if [ "$soft_reset" = "true" ]; then
     exit 0
 fi
 
+if [ "$do_vim" = true ]; then
 ####################################################################################################
 # Update package lists
 ####################################################################################################
@@ -281,6 +319,8 @@ if vim --version | grep -q '+python3'; then
 else
     echo "WARNING: Vim does NOT have python3 support"
 fi
+
+fi # do_vim
 
 echo ""
 echo "Setup complete. Log saved to: $SETUP_LOG"
