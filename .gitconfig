@@ -1,3 +1,5 @@
 [user]
 	name = Jerry Feng
 	email = jerry.feng@skydio.com
+[core]
+	commentchar = ";"
