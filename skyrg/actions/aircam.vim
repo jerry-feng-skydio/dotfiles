@@ -23,6 +23,7 @@ call add(g:skyrg_context_actions, {
   \       'name': 'Restart CoC',
   \       'key':  'r',
   \       'execute': {ctx -> execute('CocRestart')},
+  \       'auto': 1,
   \     },
   \   ],
   \ },
