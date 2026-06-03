@@ -504,6 +504,41 @@ endfunction
 
 
 " ==================================================================================================
+" Session Management (per-directory)
+" ==================================================================================================
+let s:session_dir = expand('~/.vim/sessions')
+if !isdirectory(s:session_dir)
+  call mkdir(s:session_dir, 'p')
+endif
+
+set sessionoptions-=options
+set sessionoptions-=help
+
+function! s:SessionFile() abort
+  return s:session_dir . '/' . substitute(getcwd(), '/', '%', 'g') . '.vim'
+endfunction
+
+function! s:SaveSession() abort
+  let l:bufs = filter(range(1, bufnr('$')), 'buflisted(v:val) && !empty(bufname(v:val))')
+  if empty(l:bufs) | return | endif
+  execute 'mksession! ' . fnameescape(s:SessionFile())
+endfunction
+
+function! s:RestoreSession() abort
+  if argc() > 0 | return | endif
+  let l:sf = s:SessionFile()
+  if filereadable(l:sf)
+    execute 'source ' . fnameescape(l:sf)
+  endif
+endfunction
+
+augroup session_management
+  autocmd!
+  autocmd VimLeavePre * call s:SaveSession()
+  autocmd VimEnter * ++nested call s:RestoreSession()
+augroup end
+
+" ==================================================================================================
 " Visual appearance
 " NOTE: needs to come at the end to override any previous options that sneakily made it in.
 " TODO: Why isn't my python syntax highlighting working...?
