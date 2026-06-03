@@ -1,19 +1,9 @@
-# Revup commit message labels
+# Windsurf / AI Agent Rules
 #
-# This project uses Skydio's revup (https://github.com/Skydio/revup) for
-# managing stacked pull requests. Revup stores metadata as trailer-style
-# labels in commit messages.
+# All agent rules and project context live in .ai/:
+#   .ai/ARCHITECTURE.md  — repo structure, setup flow, plugin layers
+#   .ai/CONVENTIONS.md   — code style, git rules, revup labels, checkpointing
+#   .ai/git-non-interactive.md — how to use git without opening editors
 #
-# When editing or amending commit messages, NEVER remove, rename, or reorder
-# the following revup labels:
-#
-#   Topic:      — maps the commit to a pull request (required)
-#   Relative:   — declares a dependency on another topic
-#   Reviewers:  — GitHub usernames or org/team slugs
-#   Assignees:  — GitHub usernames
-#   Labels:     — GitHub PR labels (e.g. bug, feature, draft)
-#   Branches:   — target branch(es) for the PR
-#
-# These labels typically appear at the end of the commit message body,
-# each on its own line. Treat them as structured metadata — preserve them
-# exactly as-is, including casing and comma-separated values.
+# Read .ai/CONVENTIONS.md before making any git commits or editing commit
+# messages. It contains critical rules about preserving revup labels.

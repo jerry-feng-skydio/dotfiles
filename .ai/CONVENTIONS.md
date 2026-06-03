@@ -43,7 +43,26 @@ Do NOT write plans or progress unprompted during normal work. Only write when ch
 
 ## Revup
 
-- PR workflow tool. Topics defined by `Topic:` and `Relative:` tags in commit messages.
+- PR workflow tool (https://github.com/Skydio/revup). Topics defined by trailer-style labels in commit messages.
 - Config at repo-root `.revupconfig` and `~/.revupconfig`.
 - Base branch detected via `base_branch_globs` in config.
 - Python helper script at `skyrg-plugin/autoload/skyrg/revup_topics.py`.
+
+### Commit message labels — DO NOT TRAMPLE
+
+When editing or amending commit messages, **NEVER** remove, rename, reorder, or modify the following revup labels:
+
+| Label | Purpose |
+|-------|---------|
+| `Topic:` | Maps the commit to a pull request (required) |
+| `Relative:` | Declares a dependency on another topic |
+| `Reviewers:` | GitHub usernames or org/team slugs |
+| `Assignees:` | GitHub usernames |
+| `Labels:` | GitHub PR labels (e.g. `bug`, `feature`, `draft`) |
+| `Branches:` | Target branch(es) for the PR |
+
+These appear at the end of the commit message body, each on its own line.
+Treat them as structured metadata — preserve them exactly as-is, including
+casing and comma-separated values. When amending a commit with revup labels,
+always use `--no-edit` or pass the full original message (including labels)
+back via `-m`.
