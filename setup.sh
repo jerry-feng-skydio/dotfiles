@@ -322,6 +322,45 @@ fi
 
 fi # do_vim
 
+if [ "$do_claude" = true ]; then
+####################################################################################################
+# Install Claude Code CLI
+####################################################################################################
+if ! command -v claude &>/dev/null; then
+    echo "Installing Claude Code CLI..."
+    npm install -g @anthropic-ai/claude-code
+else
+    echo "Claude Code CLI already installed: $(claude --version 2>/dev/null || echo 'unknown version')"
+fi
+
+####################################################################################################
+# Configure Claude Code for Skydio (Bedrock via AWS SSO)
+####################################################################################################
+if [ "$personal" = false ]; then
+    # Create ~/.claude/settings.json with Bedrock env vars (only if it doesn't exist)
+    if [ ! -f ~/.claude/settings.json ]; then
+        echo "Creating ~/.claude/settings.json with Bedrock config..."
+        mkdir -p ~/.claude
+        cat > ~/.claude/settings.json << 'SETTINGS_EOF'
+{
+  "awsAuthRefresh": "aws sso login",
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0",
+    "CLAUDE_CODE_USE_BEDROCK": "1"
+  }
+}
+SETTINGS_EOF
+    else
+        echo "~/.claude/settings.json already exists, skipping."
+    fi
+
+    # AWS SSO login — use BROWSER=ECHO so headless machines just print the URL
+    echo "Authenticating with AWS SSO (copy the URL if on a remote machine)..."
+    BROWSER=ECHO aws sso login || echo "WARNING: AWS SSO login failed — run 'aws sso login' manually."
+fi
+
+fi # do_claude
+
 echo ""
 echo "Setup complete. Log saved to: $SETUP_LOG"
 echo "Run 'source ~/.bashrc' in your shell to pick up changes."
