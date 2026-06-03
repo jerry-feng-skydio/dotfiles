@@ -25,6 +25,11 @@ set rtp+=~/.vim/bundle/Vundle.vim
 " ==================================================================================================
 " Plugin management
 " ==================================================================================================
+" Completion engine: 'coc' (default) or 'ycm'
+" Override before sourcing .vimrc or in ~/.vimrc.local:
+"   let g:completion_engine = 'ycm'
+let g:completion_engine = get(g:, 'completion_engine', 'coc')
+
 call vundle#begin()
 " alternatively, pass a path where Vundle should install plugins
 "call vundle#begin('~/some/path/here')
@@ -37,11 +42,13 @@ Plugin 'VundleVim/Vundle.vim'
 Plugin 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plugin 'junegunn/fzf.vim'
 
-" Autocompletion engine
-Plugin 'Valloric/YouCompleteMe'
-
-" LSP client (for clangd, pyright, etc.)
-Plugin 'neoclide/coc.nvim', {'branch': 'release'}
+" Autocompletion / LSP (controlled by g:completion_engine)
+if g:completion_engine ==# 'ycm'
+  Plugin 'Valloric/YouCompleteMe'
+endif
+if g:completion_engine ==# 'coc'
+  Plugin 'neoclide/coc.nvim', {'branch': 'release'}
+endif
 
 " Switch between header and cc file
 Bundle 'vim-scripts/a.vim'
@@ -188,18 +195,29 @@ nnoremap <expr> <leader>? ':RG '.expand('<c-r>"')
 
 nnoremap <leader><bar> :vsp<cr>
 " Function Keys ---------------------------------------------------------------
-nnoremap <F1> :YcmCompleter GetDoc<cr>
-nnoremap <F2> :YcmCompleter GetType<cr>
-nnoremap <F3> :YcmCompleter GoTo<cr>
-nnoremap <F4> :YcmCompleter GoToSymbol
-
-nnoremap <F5> :YcmForceCompileAndDiagnostics<cr>
-nnoremap <F6> :YcmDiags<cr>
-nnoremap <F7> :YcmShowDetailedDiagnostic<cr>
-nnoremap <F8> :YcmCompleter FixIt<cr>
-
-nnoremap <F9> :YcmCompleter RefactorRename
-nnoremap <F10> :YRefs<cr>
+if g:completion_engine ==# 'coc'
+  nnoremap <silent> <F1> :call CocActionAsync('doHover')<cr>
+  nmap <silent> <F2> <Plug>(coc-type-definition)
+  nmap <silent> <F3> <Plug>(coc-definition)
+  nnoremap <silent> <F4> :<C-u>CocList symbols<cr>
+  nnoremap <silent> <F5> :CocRestart<cr>
+  nnoremap <silent> <F6> :CocDiagnostics<cr>
+  nmap <silent> <F7> <Plug>(coc-diagnostic-info)
+  nmap <silent> <F8> <Plug>(coc-fix-current)
+  nmap <F9> <Plug>(coc-rename)
+  nnoremap <silent> <F10> :CocRefs<cr>
+elseif g:completion_engine ==# 'ycm'
+  nnoremap <F1> :YcmCompleter GetDoc<cr>
+  nnoremap <F2> :YcmCompleter GetType<cr>
+  nnoremap <F3> :YcmCompleter GoTo<cr>
+  nnoremap <F4> :YcmCompleter GoToSymbol
+  nnoremap <F5> :YcmForceCompileAndDiagnostics<cr>
+  nnoremap <F6> :YcmDiags<cr>
+  nnoremap <F7> :YcmShowDetailedDiagnostic<cr>
+  nnoremap <F8> :YcmCompleter FixIt<cr>
+  nnoremap <F9> :YcmCompleter RefactorRename
+  nnoremap <F10> :YRefs<cr>
+endif
 " F11 is full screen
 " nnoremap <F12>
 
@@ -334,11 +352,14 @@ command! -nargs=0 RGF call skyrg#form#open()
 command! -nargs=0 RGP call skyrg#panel#open()
 nnoremap <leader>rg :RGP<cr>
 nnoremap <C-@> :RGP<cr>
-nnoremap <leader>gr :YRefs<cr>
+if g:completion_engine ==# 'ycm'
+  nnoremap <leader>gr :YRefs<cr>
+endif
 
 " ==================================================================================================
 " CoC (LSP) Configuration
 " ==================================================================================================
+if g:completion_engine ==# 'coc'
 " Navigation
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
@@ -373,6 +394,7 @@ function! s:CocRefsToSkyRG() abort
 endfunction
 command! -nargs=0 CocRefs call s:CocRefsToSkyRG()
 nnoremap <leader>gr :CocRefs<cr>
+endif " g:completion_engine == 'coc'
 
 " ==================================================================================================
 " Signify Configuration
@@ -385,7 +407,9 @@ let g:signify_update_on_focusgained = 1
 " ==================================================================================================
 " YCM Configuration
 " ==================================================================================================
+if g:completion_engine ==# 'ycm'
 let g:ycm_confirm_extra_conf = 0 " Turn off confirmation prompt on first use every time vim opens
+endif
 
 " ==================================================================================================
 " NERD* Configuration

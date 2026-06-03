@@ -25,7 +25,7 @@ while [[ $# -gt 0 ]]; do
       echo ""
       echo "Options:"
       echo "  --soft       Soft reset: only re-link dotfiles, skip installs"
-      echo "  --vim        Only run vim build + plugin install (implies --plugins --ycm --coc)"
+      echo "  --vim        Only run vim build + plugin install (implies --plugins --coc)"
       echo "  --plugins    Only run vim :PluginInstall/:PluginUpdate"
       echo "  --ycm        Only rebuild YouCompleteMe"
       echo "  --coc        Only fix/rebuild coc.nvim (switch to release branch + npm ci)"
@@ -83,10 +83,9 @@ if [ "$any_component" = false ] && [ "$soft_reset" = false ]; then
     do_claude=true
 fi
 
-# --vim implies all vim sub-components
+# --vim implies plugins and coc; ycm is opt-in via --ycm
 if [ "$do_vim" = true ]; then
     do_plugins=true
-    do_ycm=true
     do_coc=true
 fi
 
@@ -269,6 +268,8 @@ fi
 mkdir -p ~/.vim/undodir
 
 # Call :PluginInstall from command line, then exit
+# NOTE: Stale plugins (e.g. YCM after switching to CoC) remain on disk.
+# Run :PluginClean inside vim to prune them.
 vim -c 'PluginInstall' -c 'qa!'
 
 fi # do_plugins
