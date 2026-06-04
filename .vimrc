@@ -529,6 +529,7 @@ function! s:SaveSession() abort
   for l:b in l:bufs
     let l:path = fnamemodify(bufname(l:b), ':p')
     if getbufvar(l:b, '&buftype') !=# '' || stridx(l:path, l:cwd) != 0
+      \ || stridx(l:path, '/.git/') >= 0
       call setbufvar(l:b, '&buflisted', 0)
     endif
   endfor
