@@ -3,6 +3,25 @@
 " Context popup trigger
 let g:skyrg_context_key = '<Leader>a'
 
+" Context popup pages — index maps to keyboard key (1234567890)
+let g:skyrg_pages = {
+  \ 1: {'name': 'Search'},
+  \ 3: {'name': 'Device', 'predicate': {-> skyrg#backend#device#is_connected()}},
+  \ 0: {'name': 'SkyRG'},
+  \ 9: {'name': 'Buffer', 'auto': 1,
+  \     'predicate': {-> skyrg#ui#live_split#is_live_split(bufnr('%'))}},
+  \ }
+
+" Map action groups to page indices
+let g:skyrg_group_pages = {
+  \ 'search': 1,
+  \ 'open': 1,
+  \ 'revup': 1,
+  \ 'device': 3,
+  \ 'debug': 0,
+  \ 'live_split': 9,
+  \ }
+
 " Logging
 let g:skyrg_log_level = 'DEBUG'
 
