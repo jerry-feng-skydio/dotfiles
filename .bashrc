@@ -190,4 +190,4 @@ export CLOUD_CLIENT_EMAIL="jerry.feng@skydio.com"
 export AWS_PROFILE=default
 
 export PATH=/home/skydio/software/android-sdk-skydio-v2/platform-tools:$PATH
-export PATH=$HOME/.local/bin:$PATH
+export PATH=$HOME/.local/bin:$HOME/.npm-global/bin:$PATH
