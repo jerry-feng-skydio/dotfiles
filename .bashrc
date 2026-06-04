@@ -1,5 +1,9 @@
 source /etc/skel/.bashrc
 
+# Resolve dotfiles repo root from this symlinked .bashrc
+DOTFILES_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+export DOTFILES_DIR
+
 # Don't know why this isn't in the skel bashrc...
 alias yubact="ssh-add -D && ssh-add -e /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so; ssh-add -s /usr/lib/x86_64-linux-gnu/opensc-pkcs11.so"
 if [ -f /usr/local/bin/ssh-find-agent.sh ]; then
@@ -72,7 +76,7 @@ toggle_skymux_git() {
 #cd /home/skydio/
 
 skymux() {
-    ~/.dotfiles/scripts/tmux/skymux.sh
+    "$DOTFILES_DIR/scripts/tmux/skymux.sh"
 }
 
 # This sets aircam root and adds the aircam binaries path to our path.
@@ -146,16 +150,19 @@ EOF
 
 
 alias certc18='bazel run //tools/cloud_api/client_utils:create_certificate -- cert $(curl -s 192.168.20.1:80/hostname)'
-alias skymux="~/.dotfiles/scripts/tmux/skymux.sh"
-alias watch_flight_deck="~/.dotfiles/scripts/skydio/watch_vehicle_flight_deck.sh"
-alias grep_flight_deck="~/.dotfiles/scripts/skydio/grep_flight_deck.sh"
-alias lazy_ota="~/.dotfiles/scripts/skydio/lazy_ota.sh"
-alias jerry_first_time_setup="~/.dotfiles/setup.sh"
+alias skymux="$DOTFILES_DIR/scripts/tmux/skymux.sh"
+alias watch_flight_deck="$DOTFILES_DIR/scripts/skydio/watch_vehicle_flight_deck.sh"
+alias grep_flight_deck="$DOTFILES_DIR/scripts/skydio/grep_flight_deck.sh"
+alias lazy_ota="$DOTFILES_DIR/scripts/skydio/lazy_ota.sh"
+alias jerry_first_time_setup="$DOTFILES_DIR/setup.sh"
 alias oopsies='git add . && git commit --amend --no-edit && git push --force'
-alias order='python3 ~/.dotfiles/scripts/util/ordered_grep.py'
+alias order='python3 $DOTFILES_DIR/scripts/util/ordered_grep.py'
 alias decrypt="./skyrun bin decrypt_debug_logs_tar"
 
-alias gdf='cd ~/.dotfiles'
+# Quick-update dotfiles: pull, update submodules, re-source
+alias zuk='(cd "$DOTFILES_DIR" && git pull --ff-only && git submodule update --init --recursive) && source ~/.bashrc && echo "[dotfiles] Updated and re-sourced"'
+
+alias gdf='cd $DOTFILES_DIR'
 alias gac='cd ~/aircam'
 
 alias glp="git log --pretty=oneline"
@@ -168,12 +175,12 @@ alias revupr="./skyrun bin revup restack"
 
 # alias coder="ssh main.jfeng-claude.jerry-feng.coder"
 # alias coder_aosp="ssh main.jfeng-aosp.jerry-feng.coder"
-alias jroot="cd ~/.dotfiles"
-alias gitjf="git -C ~/.dotfiles/"
-alias vimjf="vim ~/.dotfiles"
-alias brc="vim ~/.dotfiles/.bashrc"
-alias vrc="vim ~/.dotfiles/.vimrc"
-alias src="source ~/.dotfiles/.bashrc"
+alias jroot="cd $DOTFILES_DIR"
+alias gitjf="git -C $DOTFILES_DIR/"
+alias vimjf="vim $DOTFILES_DIR"
+alias brc="vim $DOTFILES_DIR/.bashrc"
+alias vrc="vim $DOTFILES_DIR/.vimrc"
+alias src="source $DOTFILES_DIR/.bashrc"
 
 export EDITOR=vim
 export AIRCAM_WEBRTC_NETWORK_INTERFACE_NAME="enp6s0"
