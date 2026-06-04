@@ -209,7 +209,7 @@ fi
 if dpkg -l fzf &>/dev/null; then
     sudo apt-get remove -y fzf
 fi
-FZF_VERSION="v0.46.1"
+FZF_VERSION="v0.73.1"
 if [ ! -d ~/.fzf ]; then
     git clone --depth 1 --branch "$FZF_VERSION" https://github.com/junegunn/fzf.git ~/.fzf
 else
