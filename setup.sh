@@ -415,15 +415,15 @@ if [ "$do_claude" = true ]; then
 # Install Claude Code CLI
 ####################################################################################################
 # NOTE(jfeng): nix npm's global prefix is /usr which requires root.
-# Use ~/.npm-global instead so npm install -g works without sudo.
+# Use --prefix to install into ~/.npm-global without persisting the
+# prefix in ~/.npmrc (which would break aircam build scripts).
 NPM_GLOBAL="$HOME/.npm-global"
 mkdir -p "$NPM_GLOBAL"
-npm config set prefix "$NPM_GLOBAL"
 export PATH="$NPM_GLOBAL/bin:$PATH"
 
 if ! command -v claude &>/dev/null; then
     echo "Installing Claude Code CLI..."
-    npm install -g @anthropic-ai/claude-code
+    npm install -g --prefix "$NPM_GLOBAL" @anthropic-ai/claude-code
 else
     echo "Claude Code CLI already installed: $(claude --version 2>/dev/null || echo 'unknown version')"
 fi
