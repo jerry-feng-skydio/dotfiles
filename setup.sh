@@ -397,10 +397,13 @@ if [ "$do_vim" = true ]; then
 echo ""
 echo "========================================"
 echo "Verifying vim installation..."
-vim_version=$(vim --version | head -2)
+# NOTE(jfeng): vim --version can return non-zero when stdout is not a tty
+# (e.g. piped through tee). Guard with || true so set -e / pipefail don't
+# silently abort the rest of setup (the Claude Code section comes after this).
+vim_version=$(vim --version 2>/dev/null | head -2 || true)
 echo "$vim_version"
 
-if vim --version | grep -q '+python3'; then
+if vim --version 2>/dev/null | grep -q '+python3'; then
     echo "OK: Vim has python3 support"
 else
     echo "WARNING: Vim does NOT have python3 support"
