@@ -17,6 +17,7 @@ Capture the current session's work into the Obsidian vault at `~/c38_logging_not
 ### 1. Identify which tasks were worked on
 
 Review the conversation history to determine:
+
 - Which GA task(s) were discussed or advanced (map to pages in `tasks/`)
 - Which coverage gap items were addressed (map to `coverage_gaps.md`)
 - Whether any new file classes, upload paths, or reference pages were created or modified
@@ -47,11 +48,15 @@ For each affected task page in `tasks/`, append a dated entry under `## Work Log
 ```markdown
 ### YYYY/MM/DD HH:MM — <short title>
 
+**Host:** `<hostname>` | **Branch:** `<branch>` (base: `<base-branch>`)
+
 - <bullet points summarizing work done>
 - <decisions made, with rationale if non-obvious>
 - <PRs/commits: [#NNNNN](url) or `commit-hash`>
 - <next steps or open questions>
 ```
+
+Get the hostname from `$HOSTNAME` or `hostname` command. Get the branch from `git -C ~/aircam rev-parse --abbrev-ref HEAD`.
 
 Use today's date. If there's already an entry for today, append to it rather than creating a duplicate.
 
@@ -85,5 +90,6 @@ Show the user a summary of what was written and where before committing. Include
 - Never overwrite existing work log entries — append only
 - If the same session already has an entry, add new bullets under the existing heading
 - Keep summaries concise — aim for 5-15 bullets per session, not paragraphs
+- Always include **host machine** (`$HOSTNAME`) and **git branch** at the top of each work log entry
 - Include branch names when referencing code work (e.g., "on `jfeng.c38_analytics`")
 - Link PRs as `[#NNNNN](https://github.com/Skydio/aircam/pull/NNNNN)`

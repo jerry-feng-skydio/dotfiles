@@ -60,6 +60,34 @@ link_workflow() {
   fi
 }
 
+ensure_companion_repo() {
+  local repo_path="$1"
+  local git_url="$2"
+  local workspace="$3"
+  local link_name="$4"
+
+  # Clone if missing
+  if [ ! -d "$repo_path" ]; then
+    echo "  CLONE $(basename "$repo_path") from $git_url"
+    git clone "$git_url" "$repo_path"
+  fi
+
+  # Symlink into workspace for edit tool access
+  if [ -d "$workspace" ] && [ ! -e "$workspace/$link_name" ]; then
+    ln -s "$repo_path" "$workspace/$link_name"
+    echo "  LINK  $workspace/$link_name → $repo_path"
+  fi
+
+  # Add symlink to workspace local gitignore
+  if [ -d "$workspace/.git" ]; then
+    local exclude="$workspace/.git/info/exclude"
+    mkdir -p "$(dirname "$exclude")"
+    if ! grep -qxF "$link_name" "$exclude" 2>/dev/null; then
+      echo "$link_name" >> "$exclude"
+    fi
+  fi
+}
+
 DOTFILES_DIR="$(cd "$CONTEXT_DIR/../.." && pwd)"
 WORKFLOWS_DIR="$DOTFILES_DIR/.windsurf/workflows"
 
@@ -69,6 +97,14 @@ echo ""
 # ── Add your repos here ──────────────────────────────────────────────────────
 link_plan "$HOME/aircam"    "$CONTEXT_DIR/aircam/CONTEXT.md"
 # link_plan "$HOME/other-repo"  "$CONTEXT_DIR/other-repo/CONTEXT.md"
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Companion repos (cloned if missing, symlinked into workspace) ────────────
+ensure_companion_repo \
+  "$HOME/c38_logging_notes" \
+  "git@github.com:jerry-feng-skydio/c38_logging_notes.git" \
+  "$HOME/aircam" \
+  "c38_logging_notes"
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ── Personal workflows (symlinked into each workspace) ────────────────────────
