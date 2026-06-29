@@ -8,7 +8,10 @@ dotfiles/
 ├── .vimrc_macos        # macOS-specific Vim config
 ├── .bashrc             # Shell config, symlinked to ~/.bashrc
 ├── .tmux.conf          # Tmux config
-├── .gitconfig          # Git config
+├── .gitconfig          # Git config (includes core.excludesFile)
+├── .gitignore_global   # Global gitignore for personal agent files
+├── .windsurf/
+│   └── workflows/      # Personal Windsurf workflows (symlinked per-repo)
 ├── setup.sh            # Machine bootstrap script (installs + symlinks)
 ├── skyrg-plugin/       # SkyRG Vim plugin (git submodule → SkyRG repo)
 ├── vim-lcm/            # LCM syntax highlighting plugin

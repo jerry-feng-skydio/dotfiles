@@ -24,6 +24,24 @@ When the user says **"checkpoint"** or **"wrap up"**:
 
 Do NOT write plans or progress unprompted during normal work. Only write when checkpointing.
 
+## Personal Tools, Workflows, and Documentation
+
+All personal agent artifacts belong in **`~/.dotfiles`** — never commit them to shared repos.
+
+| Artifact | Location in dotfiles | Linked into workspace via |
+|----------|---------------------|--------------------------|
+| Windsurf rules | `agentic-coding/rules/*.md` | `~/.windsurf/rules/` (global symlink) |
+| Windsurf workflows | `.windsurf/workflows/*.md` | `<repo>/.windsurf/workflows/` (per-repo symlinks) |
+| Per-project context | `agentic-coding/context/<project>/CONTEXT.md` | `<repo>/CLAUDE.local.md` (symlink) |
+| In-flight progress | `agentic-coding/context/<project>/PROGRESS.md` | read directly from dotfiles |
+
+When creating a new personal workflow or rule:
+1. Create the file in `~/.dotfiles` at the appropriate location above.
+2. Run `bash ~/.dotfiles/agentic-coding/context/setup.sh` to create symlinks into work repos.
+3. The symlinks and `CLAUDE.local.md` are excluded from git via `~/.gitignore_global` and `.git/info/exclude`.
+
+**Never** create personal workflows, rules, or `CLAUDE.local.md` directly in a shared repo — always author them in dotfiles and symlink.
+
 ## Code Style
 
 - Follow existing code style in each file. Do not add or remove comments unless asked.

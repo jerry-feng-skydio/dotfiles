@@ -3,3 +3,4 @@
 	email = jerry.feng@skydio.com
 [core]
 	commentchar = ";"
+	excludesFile = ~/.gitignore_global

@@ -1,0 +1,10 @@
+# Global gitignore — personal agent files that should never be committed
+# Managed by dotfiles, symlinked via setup.sh
+
+# Claude Code personal context (symlinked from dotfiles)
+CLAUDE.local.md
+
+# Claude Code local settings and worktrees
+.claude/settings.local.json
+.claude/worktrees/
+.claude/scheduled_tasks.lock

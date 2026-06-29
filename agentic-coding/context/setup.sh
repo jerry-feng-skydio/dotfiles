@@ -40,12 +40,46 @@ link_plan() {
   echo "  OK   $(basename "$repo") → CLAUDE.local.md linked"
 }
 
+link_workflow() {
+  local repo="$1"
+  local workflow_file="$2"
+  local workflow_name
+  workflow_name="$(basename "$workflow_file")"
+
+  if [ ! -d "$repo/.windsurf/workflows" ]; then
+    mkdir -p "$repo/.windsurf/workflows"
+  fi
+
+  ln -sf "$workflow_file" "$repo/.windsurf/workflows/$workflow_name"
+
+  # Add to local gitignore (never touches shared .gitignore)
+  local exclude="$repo/.git/info/exclude"
+  local pattern=".windsurf/workflows/$workflow_name"
+  if ! grep -qxF "$pattern" "$exclude" 2>/dev/null; then
+    echo "$pattern" >> "$exclude"
+  fi
+}
+
+DOTFILES_DIR="$(cd "$CONTEXT_DIR/../.." && pwd)"
+WORKFLOWS_DIR="$DOTFILES_DIR/.windsurf/workflows"
+
 echo "Linking agent context into work repos..."
 echo ""
 
 # ── Add your repos here ──────────────────────────────────────────────────────
 link_plan "$HOME/aircam"    "$CONTEXT_DIR/aircam/CONTEXT.md"
 # link_plan "$HOME/other-repo"  "$CONTEXT_DIR/other-repo/CONTEXT.md"
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Personal workflows (symlinked into each workspace) ────────────────────────
+if [ -d "$WORKFLOWS_DIR" ]; then
+  echo "Linking personal workflows..."
+  for wf in "$WORKFLOWS_DIR"/*.md; do
+    [ -f "$wf" ] || continue
+    link_workflow "$HOME/aircam" "$wf"
+    echo "  OK   $(basename "$wf") → aircam/.windsurf/workflows/"
+  done
+fi
 # ─────────────────────────────────────────────────────────────────────────────
 
 echo ""

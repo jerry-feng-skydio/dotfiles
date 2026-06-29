@@ -15,3 +15,5 @@ Personal development environment configuration for Jerry Feng.
 - `skyrg-plugin/` — SkyRG Vim plugin (submodule)
 - `setup.sh` — machine bootstrap script
 - `agentic-coding/` — all AI agent rules, conventions, and project context
+- `.windsurf/workflows/` — personal Windsurf workflows (symlinked into work repos)
+- `.gitignore_global` — global gitignore for personal agent files

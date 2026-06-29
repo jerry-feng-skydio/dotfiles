@@ -168,6 +168,9 @@ ln -sf "${PARENT_PATH}/coc-settings.json" ~/.vim/coc-settings.json
 mkdir -p ~/.windsurf
 ln -sfn "${PARENT_PATH}/agentic-coding/rules" ~/.windsurf/rules
 
+# Global gitignore for personal agent files (CLAUDE.local.md, etc.)
+ln -sf "${PARENT_PATH}/.gitignore_global" ~/.gitignore_global
+
 # Set up convenience symlink to aircam (only if the target exists)
 if [ -d /home/skydio/aircam ]; then
     ln -sfn /home/skydio/aircam ~/aircam
