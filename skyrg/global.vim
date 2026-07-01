@@ -46,3 +46,6 @@ call skyrg#backend#device#watch_usb()
 "   let g:skyrg_workflows_dir = expand('~/.windsurf/workflows')
 let g:skyrg_workflows_dir = expand('~/.windsurf/workflows')
 
+" Analytics export directory (default: ~/analytics_dumps/)
+let g:skyrg_analytics_export_dir = expand('~/analytics_dumps')
+
