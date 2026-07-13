@@ -2,7 +2,11 @@
 # agentic-coding/context/setup.sh — Link agent context files into work repos
 #
 # Run this once per machine after cloning dotfiles.
-# Creates CLAUDE.local.md symlinks and adds them to each repo's local gitignore.
+# Creates CLAUDE.local.md symlinks and adds exclusions to ~/.gitignore_global.
+#
+# NOTE: We use ~/.gitignore_global (via git config core.excludesFile) instead
+# of .git/info/exclude because some repos (e.g. aircam) regenerate the exclude
+# file automatically, wiping any appended entries.
 #
 # Usage: bash ~/dotfiles/agentic-coding/context/setup.sh
 
@@ -30,12 +34,7 @@ link_plan() {
   # Symlink CLAUDE.local.md into the repo root (layers on top of any shared CLAUDE.md)
   ln -sfn "$context_file" "$repo/CLAUDE.local.md"
 
-  # Add to local gitignore (never touches shared .gitignore)
-  local exclude="$repo/.git/info/exclude"
-  mkdir -p "$(dirname "$exclude")"
-  if ! grep -qxF 'CLAUDE.local.md' "$exclude" 2>/dev/null; then
-    echo 'CLAUDE.local.md' >> "$exclude"
-  fi
+  add_global_ignore 'CLAUDE.local.md'
 
   echo "  OK   $(basename "$repo") → CLAUDE.local.md linked"
 }
@@ -52,12 +51,7 @@ link_workflow() {
 
   ln -sf "$workflow_file" "$repo/.windsurf/workflows/$workflow_name"
 
-  # Add to local gitignore (never touches shared .gitignore)
-  local exclude="$repo/.git/info/exclude"
-  local pattern=".windsurf/workflows/$workflow_name"
-  if ! grep -qxF "$pattern" "$exclude" 2>/dev/null; then
-    echo "$pattern" >> "$exclude"
-  fi
+  add_global_ignore ".windsurf/workflows/$workflow_name"
 }
 
 ensure_companion_repo() {
@@ -78,15 +72,23 @@ ensure_companion_repo() {
     echo "  LINK  $workspace/$link_name → $repo_path"
   fi
 
-  # Add symlink to workspace local gitignore
-  if [ -d "$workspace/.git" ]; then
-    local exclude="$workspace/.git/info/exclude"
-    mkdir -p "$(dirname "$exclude")"
-    if ! grep -qxF "$link_name" "$exclude" 2>/dev/null; then
-      echo "$link_name" >> "$exclude"
-    fi
+  add_global_ignore "$link_name"
+}
+
+GLOBAL_IGNORE="$HOME/.gitignore_global"
+
+add_global_ignore() {
+  local pattern="$1"
+  if ! grep -qxF "$pattern" "$GLOBAL_IGNORE" 2>/dev/null; then
+    echo "$pattern" >> "$GLOBAL_IGNORE"
   fi
 }
+
+# Ensure global gitignore is configured
+if [ "$(git config --global core.excludesFile 2>/dev/null)" != "$GLOBAL_IGNORE" ]; then
+  git config --global core.excludesFile "$GLOBAL_IGNORE"
+  echo "Set core.excludesFile → $GLOBAL_IGNORE"
+fi
 
 DOTFILES_DIR="$(cd "$CONTEXT_DIR/../.." && pwd)"
 WORKFLOWS_DIR="$DOTFILES_DIR/.windsurf/workflows"
@@ -119,4 +121,4 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 
 echo ""
-echo "Done. CLAUDE.md symlinks are gitignored locally via .git/info/exclude."
+echo "Done. Symlinks are gitignored globally via $GLOBAL_IGNORE."

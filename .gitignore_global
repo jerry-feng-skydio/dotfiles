@@ -8,3 +8,18 @@ CLAUDE.local.md
 .claude/settings.local.json
 .claude/worktrees/
 .claude/scheduled_tasks.lock
+
+# Dotfiles symlink (setup.sh creates this in workspace root)
+.dotfiles_link
+
+# Companion repo symlinks (setup.sh ensure_companion_repo)
+c38_logging_notes
+
+# Personal Windsurf workflow symlinks (setup.sh link_workflow)
+# NOTE: Cannot use .windsurf/workflows/*.md glob because the dir
+# contains shared workflows that ARE tracked. List personal ones explicitly.
+.windsurf/workflows/c38-logging-audit.md
+.windsurf/workflows/dump-state.md
+.windsurf/workflows/update-logging-vault.md
+.windsurf/workflows/vault-consistency-check.md
+.windsurf/workflows/weekly-status.md
