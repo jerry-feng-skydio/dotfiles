@@ -6,9 +6,10 @@ trigger: always_on
 
 When creating or amending commits in a stacked PR workflow:
 
-## Non-negotiable rule
+## Non-negotiable rules
 
-**Each commit in the stack must compile and pass tests independently.** Never leave broken intermediate states — a reviewer (or CI) checking out any single commit must get a green build.
+1. **Each commit in the stack must compile and pass tests independently.** Never leave broken intermediate states — a reviewer (or CI) checking out any single commit must get a green build.
+2. **Tests travel with their code.** If a commit adds or modifies a class/method, its unit tests belong in the **same commit**. A reviewer should see the implementation and its test coverage in a single diff. Never split tests into a separate commit.
 
 ## After every commit (before moving to the next)
 
