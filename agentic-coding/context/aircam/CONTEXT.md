@@ -15,6 +15,16 @@ See also the shared `CLAUDE.md` in the repo root for team-wide context.
 - Revup config at repo root `.revupconfig`
 - User oauth in `~/.revupconfig`
 
+## PR Buildability
+
+Every commit in a stacked PR must compile and pass tests independently. After each commit:
+1. `./skyrun bin gazelle <package>` (if imports changed)
+2. `./skyrun bin code_format --mod`
+3. `bazel build <package>/...` (full subtree, not just the new target)
+4. `bazel test <package>/...`
+
+When changing function signatures, update ALL call sites (including tests) in the same commit. Full guide: `~/c38_logging_notes/reference/pr-structuring-guide.md`.
+
 ## Pre-Commit Validation
 
 Before committing any changes, you MUST run these checks and fix any issues:
